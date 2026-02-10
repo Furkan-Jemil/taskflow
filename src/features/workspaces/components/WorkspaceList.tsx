@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useWorkspaces } from '../hooks/useWorkspaces'
 import { Button } from '@/components/ui/Button'
 import { CreateWorkspaceModal } from './CreateWorkspaceModal'
-import { Plus, LayoutGrid, Users, Settings } from 'lucide-react'
+import { Plus, LayoutGrid, Users, Settings, Activity, Briefcase, Zap } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Workspace } from '@/types/entities'
 
@@ -12,21 +12,83 @@ export function WorkspaceList() {
 
     if (isLoading) {
         return (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse">
-                {[1, 2, 3].map((i) => (
-                    <div key={i} className="h-40 bg-muted rounded-xl border" />
-                ))}
+            <div className="space-y-12 animate-pulse">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {[1, 2, 3].map(i => <div key={i} className="h-32 bg-muted rounded-2xl" />)}
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {[1, 2, 3].map((i) => (
+                        <div key={i} className="h-40 bg-muted rounded-xl border" />
+                    ))}
+                </div>
             </div>
         )
     }
 
     return (
-        <div className="space-y-8 animate-fade-in">
+        <div className="space-y-12 animate-fade-in">
+            {/* Dashboard Summary Section */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="relative overflow-hidden p-6 bg-gradient-to-br from-primary/10 to-transparent border rounded-2xl group transition-all">
+                    <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:scale-110 transition-transform">
+                        <Briefcase size={80} />
+                    </div>
+                    <div className="relative z-10">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="p-2 rounded-lg bg-primary/20 text-primary">
+                                <Briefcase size={20} />
+                            </div>
+                            <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Workspaces</h4>
+                        </div>
+                        <div className="flex items-baseline gap-2">
+                            <span className="text-4xl font-black">{workspaces?.length || 0}</span>
+                            <span className="text-sm text-emerald-500 font-bold">+12% this week</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="relative overflow-hidden p-6 bg-gradient-to-br from-indigo-500/10 to-transparent border rounded-2xl group transition-all">
+                    <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:scale-110 transition-transform">
+                        <Zap size={80} />
+                    </div>
+                    <div className="relative z-10">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="p-2 rounded-lg bg-indigo-500/20 text-indigo-500">
+                                <Zap size={20} />
+                            </div>
+                            <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Active Boards</h4>
+                        </div>
+                        <div className="flex items-baseline gap-2">
+                            <span className="text-4xl font-black">24</span>
+                            <span className="text-sm text-indigo-500 font-bold">4 ongoing</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="relative overflow-hidden p-6 bg-gradient-to-br from-amber-500/10 to-transparent border rounded-2xl group transition-all">
+                    <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:scale-110 transition-transform">
+                        <Activity size={80} />
+                    </div>
+                    <div className="relative z-10">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="p-2 rounded-lg bg-amber-500/20 text-amber-500">
+                                <Activity size={20} />
+                            </div>
+                            <h4 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Team Reach</h4>
+                        </div>
+                        <div className="flex items-baseline gap-2">
+                            <span className="text-4xl font-black">8.4k</span>
+                            <span className="text-sm text-amber-500 font-bold">collaborators</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Workspaces</h1>
+                    <h1 className="text-3xl font-bold tracking-tight">Project Hub</h1>
                     <p className="text-muted-foreground mt-1">
-                        Select a workspace to view your project boards.
+                        Manage your teams and streamline your productivity.
                     </p>
                 </div>
                 <Button onClick={() => setIsModalOpen(true)}>
