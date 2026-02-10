@@ -23,4 +23,5 @@ export interface PaginatedResponse<T> {
 export interface BaseEntity {
     id: string
     created_at: string
+    updated_at: string
 }
