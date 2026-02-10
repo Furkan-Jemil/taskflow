@@ -11,6 +11,7 @@ const MOCK_USER = {
     name: 'Demo User',
     email: 'demo@example.com',
     created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
 }
 
 const MOCK_AUTH_RESPONSE: AuthResponse = {
