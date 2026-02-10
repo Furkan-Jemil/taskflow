@@ -1,2 +1,3 @@
-// Placeholder — Auth feature components will be added in Phase 2
-export { }
+export * from './components/LoginForm'
+export * from './components/RegisterForm'
+export * from './components/ProtectedRoute'
