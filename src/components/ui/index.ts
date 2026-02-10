@@ -1,2 +1,2 @@
-// Placeholder — Shared UI components (Button, Input, Modal, etc.)
-export { }
+export * from './Button'
+export * from './Input'
