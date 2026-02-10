@@ -1,9 +1,11 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { List, Card } from '@/types/entities'
 import { CardItem, useCards, useCreateCard } from '@/features/cards'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-import { MoreVertical, Plus, X } from 'lucide-react'
+import { MoreVertical, Plus, X, GripVertical } from 'lucide-react'
+import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 
 interface ListContainerProps {
     list: List
@@ -17,6 +19,28 @@ export function ListContainer({ list, onCardClick }: ListContainerProps) {
     const [isAdding, setIsAdding] = useState(false)
     const [newCardTitle, setNewCardTitle] = useState('')
 
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging
+    } = useSortable({
+        id: list.id,
+        data: {
+            type: 'List',
+            list,
+        },
+    })
+
+    const style = {
+        transform: CSS.Translate.toString(transform),
+        transition,
+    }
+
+    const cardIds = useMemo(() => cards?.map((c: Card) => c.id) || [], [cards])
+
     const handleAddCard = () => {
         if (!newCardTitle.trim()) return
         createCard(newCardTitle, {
@@ -27,11 +51,34 @@ export function ListContainer({ list, onCardClick }: ListContainerProps) {
         })
     }
 
+    if (isDragging) {
+        return (
+            <div
+                ref={setNodeRef}
+                style={style}
+                className="w-[300px] min-w-[300px] h-full bg-slate-200/50 dark:bg-slate-800/50 border-2 border-primary/20 rounded-xl opacity-40 shrink-0 shadow-lg"
+            />
+        )
+    }
+
     return (
-        <div className="flex flex-col w-[300px] min-w-[300px] h-full bg-slate-100/50 dark:bg-slate-900/50 rounded-xl border border-border/50 overflow-hidden shadow-sm">
+        <div
+            ref={setNodeRef}
+            style={style}
+            className="flex flex-col w-[300px] min-w-[300px] h-full bg-slate-100/50 dark:bg-slate-900/50 rounded-xl border border-border/50 overflow-hidden shadow-sm shrink-0"
+        >
             {/* List Header */}
             <div className="p-4 flex items-center justify-between font-bold text-sm tracking-tight text-slate-900 dark:text-slate-100">
-                <h3>{list.title}</h3>
+                <div className="flex items-center gap-2">
+                    <button
+                        {...attributes}
+                        {...listeners}
+                        className="cursor-grab active:cursor-grabbing p-1 hover:bg-muted rounded text-muted-foreground/50 transition-colors"
+                    >
+                        <GripVertical size={16} />
+                    </button>
+                    <h3>{list.title}</h3>
+                </div>
                 <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground rounded-full">
                     <MoreVertical size={16} />
                 </Button>
@@ -39,15 +86,17 @@ export function ListContainer({ list, onCardClick }: ListContainerProps) {
 
             {/* Card Content Area */}
             <div className="flex-1 overflow-y-auto px-2 space-y-2 custom-scrollbar">
-                {isLoading ? (
-                    <div className="space-y-2 p-1">
-                        {[1, 2].map(i => <div key={i} className="h-24 bg-muted rounded-lg animate-pulse" />)}
-                    </div>
-                ) : (
-                    cards?.map(card => (
-                        <CardItem key={card.id} card={card} onClick={onCardClick} />
-                    ))
-                )}
+                <SortableContext items={cardIds} strategy={verticalListSortingStrategy}>
+                    {isLoading ? (
+                        <div className="space-y-2 p-1">
+                            {[1, 2].map(i => <div key={i} className="h-24 bg-muted rounded-lg animate-pulse" />)}
+                        </div>
+                    ) : (
+                        cards?.map((card: Card) => (
+                            <CardItem key={card.id} card={card} onClick={onCardClick} />
+                        ))
+                    )}
+                </SortableContext>
             </div>
 
             {/* List Footer / Add Card */}
