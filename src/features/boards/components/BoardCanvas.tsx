@@ -39,6 +39,8 @@ export function BoardCanvas() {
 
     // Local state for optimistic updates and DND
     const [lists, setLists] = useState<List[]>([])
+    const [searchQuery, setSearchQuery] = useState('')
+
     const [isAddingList, setIsAddingList] = useState(false)
     const [newListTitle, setNewListTitle] = useState('')
 
@@ -200,8 +202,18 @@ export function BoardCanvas() {
                             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                             <Input
                                 placeholder="Search tasks..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
                                 className="w-64 h-9 pl-9 bg-muted/50 border-none focus-visible:ring-1"
                             />
+                            {searchQuery && (
+                                <button
+                                    onClick={() => setSearchQuery('')}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                                >
+                                    <X size={12} />
+                                </button>
+                            )}
                         </div>
                         <Button variant="ghost" size="sm">
                             <Filter size={16} className="mr-2" />
