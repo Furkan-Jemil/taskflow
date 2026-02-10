@@ -13,6 +13,17 @@ interface UIState {
     // Global loading
     isGlobalLoading: boolean
     setGlobalLoading: (loading: boolean) => void
+
+    // Toasts
+    toasts: Toast[]
+    addToast: (toast: Omit<Toast, 'id'>) => void
+    removeToast: (id: string) => void
+}
+
+export interface Toast {
+    id: string
+    message: string
+    type: 'success' | 'error' | 'info'
 }
 
 export const useUIStore = create<UIState>((set) => ({
@@ -33,4 +44,15 @@ export const useUIStore = create<UIState>((set) => ({
     // Global loading
     isGlobalLoading: false,
     setGlobalLoading: (loading) => set({ isGlobalLoading: loading }),
+
+    // Toasts
+    toasts: [],
+    addToast: (toast) => {
+        const id = Math.random().toString(36).substring(2, 9)
+        set((state) => ({ toasts: [...state.toasts, { ...toast, id }] }))
+        setTimeout(() => {
+            set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) }))
+        }, 3000)
+    },
+    removeToast: (id) => set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) })),
 }))
