@@ -10,12 +10,14 @@ const MOCK_WORKSPACES: Workspace[] = [
         name: 'Personal Projects',
         owner_id: '1',
         created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
     },
     {
         id: 'ws-2',
         name: 'Work Team',
         owner_id: '1',
         created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
     },
 ]
 
@@ -51,6 +53,7 @@ export const workspaceService = {
             name,
             owner_id: '1',
             created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
         }
         return newWs
     },
