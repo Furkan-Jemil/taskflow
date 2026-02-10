@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { LoginForm, RegisterForm, ProtectedRoute } from '@/features/auth'
+import { WorkspaceList } from '@/features/workspaces'
 
 /**
  * Application route definitions
@@ -22,11 +23,8 @@ function AppRoutes() {
             {/* Protected Routes */}
             <Route element={<ProtectedRoute />}>
                 <Route path="/workspaces" element={
-                    <div className="flex items-center justify-center min-h-screen bg-background">
-                        <div className="text-center space-y-4">
-                            <h1 className="text-3xl font-bold">Your Workspaces</h1>
-                            <p className="text-muted-foreground">Coming in Phase 3</p>
-                        </div>
+                    <div className="container mx-auto py-10 px-4 md:px-6">
+                        <WorkspaceList />
                     </div>
                 } />
                 {/* Redirect authenticated users from root to workspaces */}
