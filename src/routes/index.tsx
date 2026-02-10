@@ -1,6 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { LoginForm, RegisterForm, ProtectedRoute } from '@/features/auth'
-import { WorkspaceList } from '@/features/workspaces'
+import { WorkspaceList, WorkspaceDetail } from '@/features/workspaces'
 
 /**
  * Application route definitions
@@ -27,6 +27,7 @@ function AppRoutes() {
                         <WorkspaceList />
                     </div>
                 } />
+                <Route path="/workspaces/:id" element={<WorkspaceDetail />} />
                 {/* Redirect authenticated users from root to workspaces */}
                 <Route path="/" element={<Navigate to="/workspaces" replace />} />
             </Route>
