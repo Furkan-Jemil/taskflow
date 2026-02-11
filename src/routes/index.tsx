@@ -3,6 +3,8 @@ import { LoginForm, RegisterForm, ProtectedRoute } from '@/features/auth'
 import { WorkspaceList, WorkspaceDetail } from '@/features/workspaces'
 import { BoardCanvas } from '@/features/boards'
 import { AppLayout } from '@/components/layout'
+import Settings from '@/pages/Settings'
+import Favorites from '@/pages/Favorites'
 
 
 /**
@@ -27,8 +29,11 @@ function AppRoutes() {
             <Route element={<ProtectedRoute />}>
                 <Route element={<AppLayout />}>
                     <Route path="/workspaces" element={<WorkspaceList />} />
+                    <Route path="/workspaces/all" element={<WorkspaceList />} />
                     <Route path="/workspaces/:id" element={<WorkspaceDetail />} />
                     <Route path="/boards/:boardId" element={<BoardCanvas />} />
+                    <Route path="/settings" element={<Settings />} />
+                    <Route path="/favorites" element={<Favorites />} />
                     {/* Redirect authenticated users from root to workspaces */}
                     <Route path="/" element={<Navigate to="/workspaces" replace />} />
                 </Route>
