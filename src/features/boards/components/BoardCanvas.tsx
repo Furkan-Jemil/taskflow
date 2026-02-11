@@ -1,11 +1,12 @@
 import { useState, useMemo, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
 import { useBoard } from '@/features/boards/hooks/useBoards'
-import { useLists, useCreateList } from '@/features/lists/hooks/useLists'
+import { useLists, useCreateList, useUpdateList } from '@/features/lists/hooks/useLists'
 import { ListContainer } from '@/features/lists/components/ListContainer'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-import { CardDetailModal } from '@/features/cards'
+import { CardDetailModal, useUpdateCard } from '@/features/cards'
 import { Card, List } from '@/types/entities'
 import { ChevronLeft, Plus, Users, Settings, Search, X, Star } from 'lucide-react'
 import { useFavoritesStore } from '@/stores/favoritesStore'
@@ -37,9 +38,12 @@ import { BoardSharingModal } from './BoardSharingModal'
 
 export function BoardCanvas() {
     const { boardId } = useParams<{ boardId: string }>()
+    const queryClient = useQueryClient()
     const { data: board, isLoading: isBoardLoading } = useBoard(boardId || '')
     const { data: serverLists, isLoading: isListsLoading } = useLists(boardId || '')
     const { mutate: createList, isPending: isCreatingList } = useCreateList(boardId || '')
+    const { mutate: updateList } = useUpdateList(boardId || '')
+    const { mutate: updateCard } = useUpdateCard('') // listId not strictly needed for mutation itself if we invalidate correctly
 
     // Local state for optimistic updates and DND
     const [lists, setLists] = useState<List[]>([])
@@ -104,19 +108,31 @@ export function BoardCanvas() {
         })
     }
 
-    // DND Handlers
+    // --- DND LOGIC ---
+
+    const findContainer = (id: string) => {
+        // If id is a list id
+        if (lists.some((l: List) => l.id === id)) return id
+
+        // If id is a card id, find which list it belongs to in the React Query cache
+        const allCardQueries = queryClient.getQueriesData<Card[]>({ queryKey: ['cards'] })
+        for (const [queryKey, cards] of allCardQueries) {
+            if (cards && cards.some((c: Card) => c.id === id)) {
+                return (queryKey[1] as string) // listId is at index 1
+            }
+        }
+
+        return null
+    }
+
     function onDragStart(event: DragStartEvent) {
         const { active } = event
         const data = active.data.current
 
         if (data?.type === 'List') {
             setActiveList(data.list)
-            return
-        }
-
-        if (data?.type === 'Card') {
+        } else if (data?.type === 'Card') {
             setActiveCard(data.card)
-            return
         }
     }
 
@@ -124,57 +140,98 @@ export function BoardCanvas() {
         const { active, over } = event
         if (!over) return
 
-        const activeId = active.id
-        const overId = over.id
+        const activeId = active.id as string
+        const overId = over.id as string
 
         if (activeId === overId) return
 
         const activeData = active.data.current
+        if (activeData?.type !== 'Card') return
+
         const overData = over.data.current
 
-        const isActiveACard = activeData?.type === 'Card'
-        const isOverACard = overData?.type === 'Card'
-        const isOverAList = overData?.type === 'List'
+        const activeContainer = findContainer(activeId)
+        const overContainer = findContainer(overId)
 
-        if (!isActiveACard) return
+        if (!activeContainer || !overContainer || activeContainer === overContainer) return
 
-        // Drop card over another card
-        if (isActiveACard && (isOverACard || isOverAList)) {
-            // Movement logic will be handled better with a unified state
-            // For this mock/demo, we're focusing on the smooth visual transitions
-            // facilitated by dnd-kit's sortable context in the ListContainers
-        }
+        // Moving card between lists
+        queryClient.setQueryData(['cards', activeContainer], (prev: Card[] | undefined) => {
+            if (!prev) return []
+            const activeCard = prev.find(c => c.id === activeId)
+            if (!activeCard) return prev
+            return prev.filter(c => c.id !== activeId)
+        })
+
+        queryClient.setQueryData(['cards', overContainer], (prev: Card[] | undefined) => {
+            const activeCard = activeData.card
+            const currentCards = prev || []
+
+            // Find position to insert
+            let newIndex
+            const isOverACard = overData?.type === 'Card'
+            if (isOverACard) {
+                newIndex = currentCards.findIndex(c => c.id === overId)
+            } else {
+                newIndex = currentCards.length
+            }
+
+            const updatedCard = { ...activeCard, list_id: overContainer }
+            const newCards = [...currentCards]
+            newCards.splice(newIndex, 0, updatedCard)
+
+            return newCards
+        })
     }
 
     function onDragEnd(event: DragEndEvent) {
+        const { active, over } = event
         setActiveList(null)
         setActiveCard(null)
 
-        const { active, over } = event
         if (!over) return
 
-        const activeId = active.id
-        const overId = over.id
-
-        if (activeId === overId) return
+        const activeId = active.id as string
+        const overId = over.id as string
 
         const activeData = active.data.current
 
-        // Handle List Reordering
+        // 1. Handle List Reordering
         if (activeData?.type === 'List') {
-            setLists((prev) => {
-                const oldIndex = prev.findIndex((l) => l.id === activeId)
-                const newIndex = prev.findIndex((l) => l.id === overId)
-                const updated = arrayMove(prev, oldIndex, newIndex)
-                // Persistence would happen here in a real API
-                return updated
-            })
+            if (activeId !== overId) {
+                const oldIndex = lists.findIndex((l: List) => l.id === activeId)
+                const newIndex = lists.findIndex((l: List) => l.id === overId)
+                const newLists = arrayMove(lists, oldIndex, newIndex)
+                setLists(newLists)
+
+                // Persistence
+                newLists.forEach((list: List, index: number) => {
+                    if (list.position !== index + 1) {
+                        updateList({ id: list.id, data: { position: index + 1 } })
+                    }
+                })
+            }
+            return
         }
 
-        // Handle Card Movement/Reordering
+        // 2. Handle Card Drop
         if (activeData?.type === 'Card') {
-            // This would trigger an API call to update list_id and position
-            console.log(`Card ${activeId} moved to over ${overId}`)
+            const activeContainer = findContainer(activeId)
+            const overContainer = findContainer(overId)
+
+            if (!activeContainer || !overContainer) return
+
+            const cardsInOver = queryClient.getQueryData<Card[]>(['cards', overContainer]) || []
+            const newIndex = cardsInOver.findIndex(c => c.id === activeId)
+
+            // Trigger persistence API call
+            updateCard({
+                id: activeId,
+                data: {
+                    list_id: overContainer,
+                    position: newIndex + 1
+                }
+            })
         }
     }
 
@@ -183,23 +240,23 @@ export function BoardCanvas() {
         // In a real app, filtering might happen at the card level inside the list
         // but for the UI to "search across boards", we'll filter lists that contain cards matching the query
         // and tell the lists to only show matching cards.
-        return lists.map(list => ({
+        return lists.map((list: List) => ({
             ...list,
             // We can't actually filter the cards here because cards are fetched in ListContainer
             // but we can pass the search query down
         }))
     }, [lists, searchQuery])
 
-    const listIds = useMemo(() => lists.map((l) => l.id), [lists])
+    const listIds = useMemo(() => lists.map((l: List) => l.id), [lists])
 
     if (isBoardLoading) {
         return (
-            <div className="flex flex-col h-screen bg-background">
-                <div className="h-16 border-b bg-card flex items-center px-6 gap-4">
-                    <div className="h-6 w-32 bg-muted rounded animate-pulse" />
+            <div className="flex flex-col h-screen bg-[#0f172a]">
+                <div className="h-16 border-b border-white/5 bg-slate-900/40 flex items-center px-6 gap-4">
+                    <div className="h-6 w-32 bg-white/5 rounded animate-pulse" />
                 </div>
                 <div className="flex-1 p-6 flex gap-6 overflow-hidden">
-                    {[1, 2, 3].map(i => <div key={i} className="w-[300px] h-full bg-muted/50 rounded-xl animate-pulse" />)}
+                    {[1, 2, 3].map(i => <div key={i} className="w-[300px] h-full bg-white/5 rounded-2xl animate-pulse" />)}
                 </div>
             </div>
         )
@@ -215,9 +272,13 @@ export function BoardCanvas() {
             onDragOver={onDragOver}
             onDragEnd={onDragEnd}
         >
-            <div className="flex flex-col h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden">
+            <div className="flex flex-col h-screen bg-[#0f172a] text-slate-50 overflow-hidden relative">
+                {/* Background Blobs */}
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 rounded-full blur-[120px] pointer-events-none" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[30%] h-[30%] bg-purple-500/10 rounded-full blur-[100px] pointer-events-none" />
+
                 {/* Board Header */}
-                <div className="h-16 border-b bg-card flex items-center justify-between px-6 shrink-0 z-10">
+                <div className="h-16 border-b border-slate-800 bg-slate-900/40 backdrop-blur-xl flex items-center justify-between px-6 shrink-0 z-10">
                     <div className="flex items-center gap-4">
                         <Link
                             to={`/workspaces/${board.workspace_id}`}
@@ -278,7 +339,7 @@ export function BoardCanvas() {
                     ) : (
                         <>
                             <SortableContext items={listIds} strategy={horizontalListSortingStrategy}>
-                                {filteredLists.map(list => (
+                                {filteredLists.map((list: List) => (
                                     <ListContainer
                                         key={list.id}
                                         list={list}

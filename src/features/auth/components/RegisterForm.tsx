@@ -50,13 +50,15 @@ export function RegisterForm() {
     }
 
     return (
-        <div className="w-full max-w-md p-8 space-y-8 bg-card border rounded-xl shadow-lg ring-1 ring-black/[0.05] animate-fade-in">
-            <div className="text-center space-y-2">
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 text-primary mb-2">
-                    <UserPlus size={24} />
+        <div className="w-full max-w-md p-8 space-y-8 bg-slate-900/40 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl ring-1 ring-white/5 animate-in fade-in zoom-in-95 duration-500 relative">
+            {/* Form Glow */}
+            <div className="absolute inset-0 bg-primary/5 rounded-2xl blur-2xl -z-10" />
+            <div className="text-center space-y-3">
+                <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary/10 text-primary mb-2 shadow-inner">
+                    <UserPlus size={28} />
                 </div>
-                <h1 className="text-3xl font-bold tracking-tight">Create an account</h1>
-                <p className="text-muted-foreground text-sm">
+                <h1 className="text-4xl font-extrabold tracking-tight text-white">Create account</h1>
+                <p className="text-slate-400 text-sm font-medium">
                     Join TaskFlow and start managing your projects efficiently
                 </p>
             </div>

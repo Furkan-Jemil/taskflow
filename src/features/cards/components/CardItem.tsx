@@ -42,7 +42,7 @@ export function CardItem({ card, onClick }: CardItemProps) {
             <div
                 ref={setNodeRef}
                 style={style}
-                className="p-3 bg-slate-50 dark:bg-slate-900 border-2 border-primary/20 rounded-lg opacity-40 h-[100px]"
+                className="p-4 bg-white/10 border-2 border-primary/30 rounded-xl opacity-40 h-[100px] shadow-2xl"
             />
         )
     }
@@ -54,12 +54,12 @@ export function CardItem({ card, onClick }: CardItemProps) {
             {...attributes}
             {...listeners}
             onClick={() => onClick(card)}
-            className="group p-3 bg-card border rounded-lg shadow-sm hover:shadow-md hover:border-primary/50 transition-all cursor-grab active:cursor-grabbing select-none animate-fade-in"
+            className="group p-4 bg-slate-800/40 backdrop-blur-sm border border-white/5 rounded-xl shadow-lg hover:shadow-2xl hover:border-primary/40 hover:-translate-y-0.5 transition-all duration-300 cursor-grab active:cursor-grabbing select-none animate-in fade-in slide-in-from-bottom-2"
         >
             {/* Priority Badge */}
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center justify-between mb-3">
                 <span className={cn(
-                    "text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider",
+                    "text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-widest shadow-sm",
                     priorityColors[card.priority]
                 )}>
                     {card.priority}
@@ -67,28 +67,28 @@ export function CardItem({ card, onClick }: CardItemProps) {
             </div>
 
             {/* Title */}
-            <h4 className="text-sm font-medium leading-snug group-hover:text-primary transition-colors mb-2">
+            <h4 className="text-[15px] font-semibold leading-tight text-slate-100 group-hover:text-primary transition-colors mb-3">
                 {card.title}
             </h4>
 
             {/* Icons / Meta */}
-            <div className="flex items-center gap-3 text-muted-foreground">
+            <div className="flex items-center gap-4 text-slate-400 group-hover:text-slate-300 transition-colors">
                 {card.description && (
                     <div title="Has description">
-                        <AlignLeft size={14} />
+                        <AlignLeft size={14} className="text-primary/60" />
                     </div>
                 )}
 
                 {card.due_date && (
-                    <div className="flex items-center gap-1 text-[11px]" title="Due date">
-                        <Calendar size={12} />
+                    <div className="flex items-center gap-1.5 text-[11px] font-medium" title="Due date">
+                        <Calendar size={13} className="text-primary/60" />
                         <span>{formatDate(card.due_date)}</span>
                     </div>
                 )}
 
                 {card.priority === 'high' && !card.due_date && (
-                    <div className="flex items-center gap-1 text-red-500/80" title="Urgent">
-                        <AlertCircle size={14} />
+                    <div className="flex items-center gap-1.5 text-red-400/80" title="Urgent">
+                        <AlertCircle size={15} />
                     </div>
                 )}
             </div>

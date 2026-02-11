@@ -90,7 +90,7 @@ export function ListContainer({ list, searchQuery, onCardClick }: ListContainerP
             <div
                 ref={setNodeRef}
                 style={style}
-                className="w-[300px] min-w-[300px] h-full bg-slate-200/50 dark:bg-slate-800/50 border-2 border-primary/20 rounded-xl opacity-40 shrink-0 shadow-lg"
+                className="w-[300px] min-w-[300px] h-full bg-white/5 border-2 border-primary/30 rounded-2xl opacity-40 shrink-0 shadow-2xl"
             />
         )
     }
@@ -99,15 +99,15 @@ export function ListContainer({ list, searchQuery, onCardClick }: ListContainerP
         <div
             ref={setNodeRef}
             style={style}
-            className="flex flex-col w-[300px] min-w-[300px] h-full bg-slate-100/50 dark:bg-slate-900/50 rounded-xl border border-border/50 overflow-hidden shadow-sm shrink-0"
+            className="flex flex-col w-[302px] min-w-[302px] h-full bg-slate-900/40 backdrop-blur-md rounded-2xl border border-white/10 overflow-hidden shadow-xl shrink-0 group/list hover:border-white/20 transition-all duration-300"
         >
             {/* List Header */}
-            <div className="p-4 flex items-center justify-between font-bold text-sm tracking-tight text-slate-900 dark:text-slate-100">
+            <div className="p-4 flex items-center justify-between font-bold text-sm tracking-tight">
                 <div className="flex items-center gap-2 flex-1">
                     <button
                         {...attributes}
                         {...listeners}
-                        className="cursor-grab active:cursor-grabbing p-1 hover:bg-muted rounded text-muted-foreground/50 transition-colors"
+                        className="cursor-grab active:cursor-grabbing p-1.5 hover:bg-white/10 rounded-lg text-white/30 hover:text-white/60 transition-all"
                     >
                         <GripVertical size={16} />
                     </button>
@@ -124,22 +124,22 @@ export function ListContainer({ list, searchQuery, onCardClick }: ListContainerP
                                     setIsEditingTitle(false)
                                 }
                             }}
-                            className="h-7 text-sm font-bold bg-background border-primary px-2"
+                            className="h-8 text-sm font-bold bg-white/5 border-primary/50 text-white px-2 focus-visible:ring-primary/30"
                         />
                     ) : (
                         <h3
-                            className="cursor-pointer hover:text-primary transition-colors truncate"
+                            className="cursor-pointer hover:text-primary transition-colors truncate text-slate-100 font-semibold"
                             onClick={() => setIsEditingTitle(true)}
                         >
                             {list.title}
                         </h3>
                     )}
                 </div>
-                <div className="flex items-center">
+                <div className="flex items-center opacity-0 group-hover/list:opacity-100 transition-opacity">
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 text-muted-foreground rounded-full hover:text-destructive transition-colors"
+                        className="h-8 w-8 text-white/40 rounded-full hover:text-destructive hover:bg-destructive/10 transition-all"
                         onClick={handleDeleteList}
                     >
                         <X size={16} />
@@ -165,7 +165,7 @@ export function ListContainer({ list, searchQuery, onCardClick }: ListContainerP
             {/* List Footer / Add Card */}
             <div className="p-3 mt-auto">
                 {isAdding ? (
-                    <div className="bg-card p-3 rounded-lg border shadow-sm animate-in slide-in-from-bottom-2 fade-in">
+                    <div className="bg-white/5 backdrop-blur-lg p-3 rounded-xl border border-white/10 shadow-2xl animate-in slide-in-from-bottom-2 fade-in duration-300">
                         <Input
                             autoFocus
                             placeholder="Enter a title for this card..."
@@ -175,12 +175,12 @@ export function ListContainer({ list, searchQuery, onCardClick }: ListContainerP
                                 if (e.key === 'Enter') handleAddCard()
                                 if (e.key === 'Escape') setIsAdding(false)
                             }}
-                            className="text-sm min-h-[80px] bg-transparent border-none focus-visible:ring-0 px-0"
+                            className="text-sm min-h-[80px] bg-transparent border-none focus-visible:ring-0 px-0 placeholder:text-white/30 text-white"
                             style={{ resize: 'none' }}
                         />
-                        <div className="flex items-center gap-2 mt-2 pt-2 border-t">
-                            <Button size="sm" onClick={handleAddCard} isLoading={isCreating}>Add Card</Button>
-                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setIsAdding(false)}>
+                        <div className="flex items-center gap-2 mt-2 pt-2 border-t border-white/5">
+                            <Button size="sm" onClick={handleAddCard} isLoading={isCreating} className="bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20">Add Card</Button>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-white/40" onClick={() => setIsAdding(false)}>
                                 <X size={16} />
                             </Button>
                         </div>
@@ -188,9 +188,9 @@ export function ListContainer({ list, searchQuery, onCardClick }: ListContainerP
                 ) : (
                     <button
                         onClick={() => setIsAdding(true)}
-                        className="flex items-center w-full p-2 text-sm text-muted-foreground hover:text-primary hover:bg-primary/5 rounded-lg transition-all font-medium group"
+                        className="flex items-center w-full p-2.5 text-sm text-slate-400 hover:text-white hover:bg-white/10 rounded-xl transition-all font-medium group"
                     >
-                        <Plus size={18} className="mr-2 group-hover:scale-110 transition-transform" />
+                        <Plus size={18} className="mr-2 group-hover:scale-110 transition-transform text-primary" />
                         Add a card
                     </button>
                 )}

@@ -8,7 +8,7 @@ export function Header() {
     const { user, logout } = useAuth()
 
     return (
-        <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <header className="sticky top-0 z-40 w-full border-b border-slate-800 bg-slate-900/40 backdrop-blur-xl shrink-0">
             <div className="container flex h-14 items-center justify-between gap-4 px-6 max-w-none">
                 <div className="flex items-center gap-4 flex-1">
                     <Link to="/workspaces" className="flex items-center space-x-2">
