@@ -1,10 +1,11 @@
+import * as React from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { useAuth } from '../hooks/useAuth'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { LogIn } from 'lucide-react'
 
 const loginSchema = z.object({
@@ -15,7 +16,15 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>
 
 export function LoginForm() {
-    const { login, isLoading, error } = useAuth()
+    const { login, isLoading, error, isAuthenticated } = useAuth()
+    const navigate = useNavigate()
+
+    // Redirect if already authenticated
+    React.useEffect(() => {
+        if (isAuthenticated) {
+            navigate('/workspaces')
+        }
+    }, [isAuthenticated, navigate])
 
     const {
         register,
@@ -29,8 +38,13 @@ export function LoginForm() {
         },
     })
 
-    const onSubmit = (data: LoginFormValues) => {
-        login(data)
+    const onSubmit = async (data: LoginFormValues) => {
+        try {
+            await login(data)
+        } catch (err) {
+            // Error is handled in useAuth/authStore and displayed in UI
+            console.error('Login error:', err)
+        }
     }
 
     return (
