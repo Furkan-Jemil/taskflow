@@ -1,76 +1,44 @@
+import apiClient from '@/api/client'
 import { Workspace } from '@/types/entities'
-import { sleep } from '@/lib/utils'
-
-/**
- * Mock data for workspaces
- */
-const MOCK_WORKSPACES: Workspace[] = [
-    {
-        id: 'ws-1',
-        name: 'Personal Projects',
-        owner_id: '1',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-    },
-    {
-        id: 'ws-2',
-        name: 'Work Team',
-        owner_id: '1',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-    },
-]
+import { ApiResponse } from '@/types'
 
 export const workspaceService = {
     /**
      * Get all workspaces for current user
      */
     async getAll(): Promise<Workspace[]> {
-        await sleep(800)
-        // In real app:
-        // const response = await apiClient.get<ApiResponse<Workspace[]>>('/workspaces')
-        // return response.data.data
-        return MOCK_WORKSPACES
+        const response = await apiClient.get<ApiResponse<Workspace[]>>('/workspaces')
+        return response.data.data
     },
 
     /**
      * Get single workspace by ID
      */
     async getById(id: string): Promise<Workspace> {
-        await sleep(500)
-        const ws = MOCK_WORKSPACES.find(w => w.id === id)
-        if (!ws) throw new Error('Workspace not found')
-        return ws
+        const response = await apiClient.get<ApiResponse<Workspace>>(`/workspaces/${id}`)
+        return response.data.data
     },
 
     /**
      * Create a new workspace
      */
     async create(name: string): Promise<Workspace> {
-        await sleep(1000)
-        const newWs: Workspace = {
-            id: `ws-${Math.random().toString(36).substr(2, 9)}`,
-            name,
-            owner_id: '1',
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-        }
-        return newWs
+        const response = await apiClient.post<ApiResponse<Workspace>>('/workspaces', { name })
+        return response.data.data
     },
 
     /**
      * Update workspace
      */
     async update(id: string, data: Partial<Workspace>): Promise<Workspace> {
-        await sleep(800)
-        return { ...MOCK_WORKSPACES[0], ...data, id }
+        const response = await apiClient.patch<ApiResponse<Workspace>>(`/workspaces/${id}`, data)
+        return response.data.data
     },
 
     /**
      * Delete workspace
      */
     async delete(id: string): Promise<void> {
-        await sleep(800)
-        console.log('Deleted workspace', id)
+        await apiClient.delete(`/workspaces/${id}`)
     },
 }
