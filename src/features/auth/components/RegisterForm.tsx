@@ -1,10 +1,11 @@
+import * as React from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { useAuth } from '../hooks/useAuth'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { UserPlus } from 'lucide-react'
 
 const registerSchema = z.object({
@@ -16,7 +17,15 @@ const registerSchema = z.object({
 type RegisterFormValues = z.infer<typeof registerSchema>
 
 export function RegisterForm() {
-    const { register: registerUser, isLoading, error } = useAuth()
+    const { register: registerUser, isLoading, error, isAuthenticated } = useAuth()
+    const navigate = useNavigate()
+
+    // Redirect if already authenticated
+    React.useEffect(() => {
+        if (isAuthenticated) {
+            navigate('/workspaces')
+        }
+    }, [isAuthenticated, navigate])
 
     const {
         register,
@@ -31,8 +40,13 @@ export function RegisterForm() {
         },
     })
 
-    const onSubmit = (data: RegisterFormValues) => {
-        registerUser(data)
+    const onSubmit = async (data: RegisterFormValues) => {
+        try {
+            await registerUser(data)
+        } catch (err) {
+            // Error is handled in useAuth/authStore and displayed in UI
+            console.error('Registration error:', err)
+        }
     }
 
     return (
