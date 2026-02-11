@@ -5,7 +5,7 @@ import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Card } from '@/types/entities'
-import { useUpdateCard } from '../hooks/useCards'
+import { useUpdateCard, useDeleteCard } from '../hooks/useCards'
 import { Calendar, Tag, AlignLeft, Info } from 'lucide-react'
 
 const cardDetailSchema = z.object({
@@ -25,6 +25,7 @@ interface CardDetailModalProps {
 export function CardDetailModal({ card, isOpen, onClose }: CardDetailModalProps) {
     const listId = card?.list_id || ''
     const { mutate: updateCard, isPending } = useUpdateCard(listId)
+    const { mutate: deleteCard } = useDeleteCard(listId)
 
     const {
         register,
@@ -46,6 +47,15 @@ export function CardDetailModal({ card, isOpen, onClose }: CardDetailModalProps)
                 onClose()
             },
         })
+    }
+
+    const handleDeleteCard = () => {
+        if (!card) return
+        if (window.confirm('Are you sure you want to delete this card?')) {
+            deleteCard(card.id, {
+                onSuccess: () => onClose()
+            })
+        }
     }
 
     if (!card) return null
@@ -105,8 +115,14 @@ export function CardDetailModal({ card, isOpen, onClose }: CardDetailModalProps)
                                 <Calendar size={14} />
                                 Due Date
                             </label>
-                            <Button variant="outline" size="sm" className="w-full justify-start font-normal" type="button">
-                                <span>No date set</span>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="w-full justify-start font-normal"
+                                type="button"
+                                onClick={() => alert('Calendar picker coming soon!')}
+                            >
+                                <span>{card.due_date ? new Date(card.due_date).toLocaleDateString() : 'No date set'}</span>
                             </Button>
                         </div>
                     </div>
@@ -115,7 +131,12 @@ export function CardDetailModal({ card, isOpen, onClose }: CardDetailModalProps)
                         <Button type="submit" className="w-full" isLoading={isPending}>
                             Save Changes
                         </Button>
-                        <Button variant="ghost" className="w-full text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10" type="button">
+                        <Button
+                            variant="ghost"
+                            className="w-full text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10"
+                            type="button"
+                            onClick={handleDeleteCard}
+                        >
                             Delete Card
                         </Button>
                     </div>

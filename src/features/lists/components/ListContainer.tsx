@@ -1,23 +1,30 @@
 import { useState, useMemo } from 'react'
 import { List, Card } from '@/types/entities'
 import { CardItem, useCards, useCreateCard } from '@/features/cards'
+import { useUpdateList, useDeleteList } from '../hooks/useLists'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
-import { MoreVertical, Plus, X, GripVertical } from 'lucide-react'
+import { Plus, X, GripVertical } from 'lucide-react'
 import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
 interface ListContainerProps {
     list: List
+    searchQuery?: string
     onCardClick: (card: Card) => void
 }
 
-export function ListContainer({ list, onCardClick }: ListContainerProps) {
+export function ListContainer({ list, searchQuery, onCardClick }: ListContainerProps) {
     const { data: cards, isLoading } = useCards(list.id)
     const { mutate: createCard, isPending: isCreating } = useCreateCard(list.id)
+    const { mutate: updateList } = useUpdateList(list.board_id)
+    const { mutate: deleteList } = useDeleteList(list.board_id)
 
     const [isAdding, setIsAdding] = useState(false)
     const [newCardTitle, setNewCardTitle] = useState('')
+
+    const [isEditingTitle, setIsEditingTitle] = useState(false)
+    const [listTitle, setListTitle] = useState(list.title)
 
     const {
         attributes,
@@ -39,7 +46,17 @@ export function ListContainer({ list, onCardClick }: ListContainerProps) {
         transition,
     }
 
-    const cardIds = useMemo(() => cards?.map((c: Card) => c.id) || [], [cards])
+    const filteredCards = useMemo(() => {
+        if (!cards) return []
+        if (!searchQuery) return cards
+        const q = searchQuery.toLowerCase()
+        return cards.filter(c =>
+            c.title.toLowerCase().includes(q) ||
+            c.description?.toLowerCase().includes(q)
+        )
+    }, [cards, searchQuery])
+
+    const cardIds = useMemo(() => filteredCards.map((c: Card) => c.id), [filteredCards])
 
     const handleAddCard = () => {
         if (!newCardTitle.trim()) return
@@ -49,6 +66,23 @@ export function ListContainer({ list, onCardClick }: ListContainerProps) {
                 setIsAdding(false)
             }
         })
+    }
+
+    const handleUpdateTitle = () => {
+        if (!listTitle.trim() || listTitle === list.title) {
+            setListTitle(list.title)
+            setIsEditingTitle(false)
+            return
+        }
+        updateList({ id: list.id, data: { title: listTitle } }, {
+            onSuccess: () => setIsEditingTitle(false)
+        })
+    }
+
+    const handleDeleteList = () => {
+        if (window.confirm('Are you sure you want to delete this list and all its cards?')) {
+            deleteList(list.id)
+        }
     }
 
     if (isDragging) {
@@ -69,7 +103,7 @@ export function ListContainer({ list, onCardClick }: ListContainerProps) {
         >
             {/* List Header */}
             <div className="p-4 flex items-center justify-between font-bold text-sm tracking-tight text-slate-900 dark:text-slate-100">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-1">
                     <button
                         {...attributes}
                         {...listeners}
@@ -77,11 +111,40 @@ export function ListContainer({ list, onCardClick }: ListContainerProps) {
                     >
                         <GripVertical size={16} />
                     </button>
-                    <h3>{list.title}</h3>
+                    {isEditingTitle ? (
+                        <Input
+                            autoFocus
+                            value={listTitle}
+                            onChange={(e) => setListTitle(e.target.value)}
+                            onBlur={handleUpdateTitle}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleUpdateTitle()
+                                if (e.key === 'Escape') {
+                                    setListTitle(list.title)
+                                    setIsEditingTitle(false)
+                                }
+                            }}
+                            className="h-7 text-sm font-bold bg-background border-primary px-2"
+                        />
+                    ) : (
+                        <h3
+                            className="cursor-pointer hover:text-primary transition-colors truncate"
+                            onClick={() => setIsEditingTitle(true)}
+                        >
+                            {list.title}
+                        </h3>
+                    )}
                 </div>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground rounded-full">
-                    <MoreVertical size={16} />
-                </Button>
+                <div className="flex items-center">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-muted-foreground rounded-full hover:text-destructive transition-colors"
+                        onClick={handleDeleteList}
+                    >
+                        <X size={16} />
+                    </Button>
+                </div>
             </div>
 
             {/* Card Content Area */}
@@ -92,7 +155,7 @@ export function ListContainer({ list, onCardClick }: ListContainerProps) {
                             {[1, 2].map(i => <div key={i} className="h-24 bg-muted rounded-lg animate-pulse" />)}
                         </div>
                     ) : (
-                        cards?.map((card: Card) => (
+                        filteredCards.map((card: Card) => (
                             <CardItem key={card.id} card={card} onClick={onCardClick} />
                         ))
                     )}
