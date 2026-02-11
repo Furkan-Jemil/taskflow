@@ -2,13 +2,38 @@ import apiClient from '@/api/client'
 import { Board } from '@/types/entities'
 import { ApiResponse } from '@/types'
 
+const MOCK_BOARDS: Board[] = [
+    {
+        id: 'board-1',
+        name: 'Sprint Backlog',
+        workspace_id: 'ws-1',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+    },
+    {
+        id: 'board-2',
+        name: 'Project Roadmap',
+        workspace_id: 'ws-1',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+    },
+]
+
 export const boardService = {
     /**
      * Get all boards for a workspace
      */
     async getByWorkspace(workspaceId: string): Promise<Board[]> {
-        const response = await apiClient.get<ApiResponse<Board[]>>(`/workspaces/${workspaceId}/boards`)
-        return response.data.data
+        try {
+            const response = await apiClient.get<ApiResponse<Board[]>>(`/workspaces/${workspaceId}/boards`)
+            return response.data.data
+        } catch (error: any) {
+            if (!error.response || error.code === 'ECONNABORTED') {
+                console.warn('Backend unreachable, using mock boards.')
+                return MOCK_BOARDS.filter(b => b.workspace_id === workspaceId)
+            }
+            throw error
+        }
     },
 
     /**
