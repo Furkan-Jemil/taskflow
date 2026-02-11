@@ -1,2 +1,3 @@
-// Placeholder — Layout components (AppLayout, Sidebar, Header) — Phase 7
-export { }
+export * from './AppLayout'
+export * from './Header'
+export * from './Sidebar'
