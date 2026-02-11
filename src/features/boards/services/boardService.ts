@@ -2,7 +2,7 @@ import apiClient from '@/api/client'
 import { Board } from '@/types/entities'
 import { ApiResponse } from '@/types'
 
-const MOCK_BOARDS: Board[] = [
+let MOCK_BOARDS: Board[] = [
     {
         id: 'board-1',
         name: 'Sprint Backlog',
@@ -62,13 +62,15 @@ export const boardService = {
         } catch (error: any) {
             if (!error.response || error.code === 'ECONNABORTED') {
                 console.warn('Backend unreachable, creating mock board.')
-                return {
+                const newBoard: Board = {
                     id: `board-${Math.random().toString(36).substring(2, 9)}`,
                     name,
                     workspace_id: workspaceId,
                     created_at: new Date().toISOString(),
                     updated_at: new Date().toISOString(),
                 }
+                MOCK_BOARDS.push(newBoard)
+                return newBoard
             }
             throw error
         }
@@ -84,6 +86,11 @@ export const boardService = {
         } catch (error: any) {
             if (!error.response || error.code === 'ECONNABORTED') {
                 console.warn('Backend unreachable, updating mock board.')
+                const index = MOCK_BOARDS.findIndex(b => b.id === id)
+                if (index !== -1) {
+                    MOCK_BOARDS[index] = { ...MOCK_BOARDS[index], ...data }
+                    return MOCK_BOARDS[index]
+                }
                 return { id, ...data } as Board
             }
             throw error
@@ -99,6 +106,7 @@ export const boardService = {
         } catch (error: any) {
             if (!error.response || error.code === 'ECONNABORTED') {
                 console.warn('Backend unreachable, deleting mock board locally.')
+                MOCK_BOARDS = MOCK_BOARDS.filter(b => b.id !== id)
                 return
             }
             throw error

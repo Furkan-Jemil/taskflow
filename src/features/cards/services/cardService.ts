@@ -2,7 +2,7 @@ import apiClient from '@/api/client'
 import { Card } from '@/types/entities'
 import { ApiResponse } from '@/types'
 
-const MOCK_CARDS: Card[] = [
+let MOCK_CARDS: Card[] = [
     {
         id: 'card-1',
         list_id: 'list-1',
@@ -67,10 +67,11 @@ export const cardService = {
                     list_id: listId,
                     title,
                     priority: 'medium',
-                    position: 99,
+                    position: MOCK_CARDS.filter(c => c.list_id === listId).length + 1,
                     created_at: new Date().toISOString(),
                     updated_at: new Date().toISOString(),
                 }
+                MOCK_CARDS.push(newCard)
                 return newCard
             }
             throw error
@@ -87,6 +88,11 @@ export const cardService = {
         } catch (error: any) {
             if (!error.response || error.code === 'ECONNABORTED') {
                 console.warn('Backend unreachable, updating mock card.')
+                const index = MOCK_CARDS.findIndex(c => c.id === id)
+                if (index !== -1) {
+                    MOCK_CARDS[index] = { ...MOCK_CARDS[index], ...data }
+                    return MOCK_CARDS[index]
+                }
                 return { id, ...data } as Card
             }
             throw error
@@ -102,6 +108,7 @@ export const cardService = {
         } catch (error: any) {
             if (!error.response || error.code === 'ECONNABORTED') {
                 console.warn('Backend unreachable, deleting mock card locally.')
+                MOCK_CARDS = MOCK_CARDS.filter(c => c.id !== id)
                 return
             }
             throw error

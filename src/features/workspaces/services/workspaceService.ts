@@ -2,7 +2,7 @@ import apiClient from '@/api/client'
 import { Workspace } from '@/types/entities'
 import { ApiResponse } from '@/types'
 
-const MOCK_WORKSPACES: Workspace[] = [
+let MOCK_WORKSPACES: Workspace[] = [
     {
         id: 'ws-1',
         name: 'Personal Projects',
@@ -62,13 +62,15 @@ export const workspaceService = {
         } catch (error: any) {
             if (!error.response || error.code === 'ECONNABORTED') {
                 console.warn('Backend unreachable, creating mock workspace.')
-                return {
+                const newWorkspace: Workspace = {
                     id: `ws-${Math.random().toString(36).substring(2, 9)}`,
                     name,
                     owner_id: '1',
                     created_at: new Date().toISOString(),
                     updated_at: new Date().toISOString(),
                 }
+                MOCK_WORKSPACES.push(newWorkspace)
+                return newWorkspace
             }
             throw error
         }
@@ -84,6 +86,11 @@ export const workspaceService = {
         } catch (error: any) {
             if (!error.response || error.code === 'ECONNABORTED') {
                 console.warn('Backend unreachable, updating mock workspace.')
+                const index = MOCK_WORKSPACES.findIndex(w => w.id === id)
+                if (index !== -1) {
+                    MOCK_WORKSPACES[index] = { ...MOCK_WORKSPACES[index], ...data }
+                    return MOCK_WORKSPACES[index]
+                }
                 return { id, ...data } as Workspace
             }
             throw error
@@ -99,6 +106,7 @@ export const workspaceService = {
         } catch (error: any) {
             if (!error.response || error.code === 'ECONNABORTED') {
                 console.warn('Backend unreachable, deleting mock workspace locally.')
+                MOCK_WORKSPACES = MOCK_WORKSPACES.filter(w => w.id !== id)
                 return
             }
             throw error

@@ -2,7 +2,7 @@ import apiClient from '@/api/client'
 import { List } from '@/types/entities'
 import { ApiResponse } from '@/types'
 
-const MOCK_LISTS: List[] = [
+let MOCK_LISTS: List[] = [
     {
         id: 'list-1',
         board_id: 'board-1',
@@ -60,10 +60,11 @@ export const listService = {
                     id: `list-${Math.random().toString(36).substring(2, 9)}`,
                     board_id: boardId,
                     title,
-                    position: 99,
+                    position: MOCK_LISTS.length + 1,
                     created_at: new Date().toISOString(),
                     updated_at: new Date().toISOString(),
                 }
+                MOCK_LISTS.push(newList)
                 return newList
             }
             throw error
@@ -80,6 +81,11 @@ export const listService = {
         } catch (error: any) {
             if (!error.response || error.code === 'ECONNABORTED') {
                 console.warn('Backend unreachable, updating mock list.')
+                const index = MOCK_LISTS.findIndex(l => l.id === id)
+                if (index !== -1) {
+                    MOCK_LISTS[index] = { ...MOCK_LISTS[index], ...data }
+                    return MOCK_LISTS[index]
+                }
                 return { id, ...data } as List
             }
             throw error
@@ -95,6 +101,7 @@ export const listService = {
         } catch (error: any) {
             if (!error.response || error.code === 'ECONNABORTED') {
                 console.warn('Backend unreachable, deleting mock list locally.')
+                MOCK_LISTS = MOCK_LISTS.filter(l => l.id !== id)
                 return
             }
             throw error
