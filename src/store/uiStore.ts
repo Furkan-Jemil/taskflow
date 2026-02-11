@@ -18,6 +18,10 @@ interface UIState {
     toasts: Toast[]
     addToast: (toast: Omit<Toast, 'id'>) => void
     removeToast: (id: string) => void
+
+    // Modals
+    isCreateWorkspaceModalOpen: boolean
+    setCreateWorkspaceModalOpen: (open: boolean) => void
 }
 
 export interface Toast {
@@ -55,4 +59,8 @@ export const useUIStore = create<UIState>((set) => ({
         }, 3000)
     },
     removeToast: (id) => set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) })),
+
+    // Modals
+    isCreateWorkspaceModalOpen: false,
+    setCreateWorkspaceModalOpen: (open) => set({ isCreateWorkspaceModalOpen: open }),
 }))

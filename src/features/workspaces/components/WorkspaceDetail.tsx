@@ -66,11 +66,11 @@ export function WorkspaceDetail() {
                     </div>
 
                     <div className="flex items-center gap-3">
-                        <Button variant="outline">
+                        <Button variant="outline" onClick={() => alert('Team management coming soon!')}>
                             <Users size={18} className="mr-2" />
                             Members
                         </Button>
-                        <Button variant="outline">
+                        <Button variant="outline" onClick={() => alert('Workspace settings coming soon!')}>
                             <Settings size={18} className="mr-2" />
                             Settings
                         </Button>

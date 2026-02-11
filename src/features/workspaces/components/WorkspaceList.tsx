@@ -129,14 +129,26 @@ export function WorkspaceList() {
                             </div>
                             <h3 className="text-lg font-bold group-hover:text-primary transition-colors">{ws.name}</h3>
                             <div className="flex items-center gap-4 mt-6 pt-4 border-t text-sm text-muted-foreground">
-                                <div className="flex items-center gap-1">
+                                <button
+                                    className="flex items-center gap-1 hover:text-primary transition-colors"
+                                    onClick={(e) => {
+                                        e.preventDefault()
+                                        alert('Team management coming soon!')
+                                    }}
+                                >
                                     <Users size={14} />
                                     <span>4 Members</span>
-                                </div>
-                                <div className="flex items-center gap-1">
+                                </button>
+                                <button
+                                    className="flex items-center gap-1 hover:text-primary transition-colors"
+                                    onClick={(e) => {
+                                        e.preventDefault()
+                                        alert('Workspace settings coming soon!')
+                                    }}
+                                >
                                     <Settings size={14} />
                                     <span>Settings</span>
-                                </div>
+                                </button>
                             </div>
                         </Link>
                     ))}

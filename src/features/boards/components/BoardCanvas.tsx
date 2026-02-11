@@ -215,15 +215,20 @@ export function BoardCanvas() {
                                 </button>
                             )}
                         </div>
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" size="sm" onClick={() => alert('Filters coming soon!')}>
                             <Filter size={16} className="mr-2" />
                             Filters
                         </Button>
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" size="sm" onClick={() => alert('Sharing coming soon!')}>
                             <Users size={16} className="mr-2" />
                             Share
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full">
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-9 w-9 rounded-full"
+                            onClick={() => alert('Board settings coming soon!')}
+                        >
                             <Settings size={18} />
                         </Button>
                     </div>
