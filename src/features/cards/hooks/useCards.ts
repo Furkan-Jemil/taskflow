@@ -34,3 +34,13 @@ export function useUpdateCard(listId: string) {
         },
     })
 }
+export function useDeleteCard(listId: string) {
+    const queryClient = useQueryClient()
+
+    return useMutation({
+        mutationFn: (id: string) => cardService.delete(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: CARD_KEYS.all(listId) })
+        },
+    })
+}

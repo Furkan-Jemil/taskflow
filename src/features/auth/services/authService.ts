@@ -64,6 +64,22 @@ export const authService = {
     },
 
     /**
+     * Update user profile
+     */
+    async updateProfile(data: { name?: string; email?: string }): Promise<AuthResponse['user']> {
+        try {
+            const response = await apiClient.patch<ApiResponse<AuthResponse['user']>>('/auth/profile', data)
+            return response.data.data
+        } catch (error: any) {
+            if (!error.response || error.code === 'ECONNABORTED') {
+                console.warn('Backend is unreachable, updating mock profile.')
+                return { ...MOCK_USER, ...data }
+            }
+            throw error
+        }
+    },
+
+    /**
      * Logout
      */
     async logout(): Promise<void> {

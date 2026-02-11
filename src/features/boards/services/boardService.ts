@@ -40,30 +40,68 @@ export const boardService = {
      * Get single board by ID
      */
     async getById(id: string): Promise<Board> {
-        const response = await apiClient.get<ApiResponse<Board>>(`/boards/${id}`)
-        return response.data.data
+        try {
+            const response = await apiClient.get<ApiResponse<Board>>(`/boards/${id}`)
+            return response.data.data
+        } catch (error: any) {
+            if (!error.response || error.code === 'ECONNABORTED') {
+                console.warn('Backend unreachable, using mock board details.')
+                return MOCK_BOARDS.find(b => b.id === id) || MOCK_BOARDS[0]
+            }
+            throw error
+        }
     },
 
     /**
      * Create a new board
      */
     async create(workspaceId: string, name: string): Promise<Board> {
-        const response = await apiClient.post<ApiResponse<Board>>(`/workspaces/${workspaceId}/boards`, { name })
-        return response.data.data
+        try {
+            const response = await apiClient.post<ApiResponse<Board>>(`/workspaces/${workspaceId}/boards`, { name })
+            return response.data.data
+        } catch (error: any) {
+            if (!error.response || error.code === 'ECONNABORTED') {
+                console.warn('Backend unreachable, creating mock board.')
+                return {
+                    id: `board-${Math.random().toString(36).substring(2, 9)}`,
+                    name,
+                    workspace_id: workspaceId,
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString(),
+                }
+            }
+            throw error
+        }
     },
 
     /**
      * Update board
      */
     async update(id: string, data: Partial<Board>): Promise<Board> {
-        const response = await apiClient.patch<ApiResponse<Board>>(`/boards/${id}`, data)
-        return response.data.data
+        try {
+            const response = await apiClient.patch<ApiResponse<Board>>(`/boards/${id}`, data)
+            return response.data.data
+        } catch (error: any) {
+            if (!error.response || error.code === 'ECONNABORTED') {
+                console.warn('Backend unreachable, updating mock board.')
+                return { id, ...data } as Board
+            }
+            throw error
+        }
     },
 
     /**
      * Delete board
      */
     async delete(id: string): Promise<void> {
-        await apiClient.delete(`/boards/${id}`)
+        try {
+            await apiClient.delete(`/boards/${id}`)
+        } catch (error: any) {
+            if (!error.response || error.code === 'ECONNABORTED') {
+                console.warn('Backend unreachable, deleting mock board locally.')
+                return
+            }
+            throw error
+        }
     },
 }

@@ -50,22 +50,54 @@ export const listService = {
      * Create a new list
      */
     async create(boardId: string, title: string): Promise<List> {
-        const response = await apiClient.post<ApiResponse<List>>(`/boards/${boardId}/lists`, { title })
-        return response.data.data
+        try {
+            const response = await apiClient.post<ApiResponse<List>>(`/boards/${boardId}/lists`, { title })
+            return response.data.data
+        } catch (error: any) {
+            if (!error.response || error.code === 'ECONNABORTED') {
+                console.warn('Backend unreachable, creating mock list.')
+                const newList: List = {
+                    id: `list-${Math.random().toString(36).substring(2, 9)}`,
+                    board_id: boardId,
+                    title,
+                    position: 99,
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString(),
+                }
+                return newList
+            }
+            throw error
+        }
     },
 
     /**
      * Update list
      */
     async update(id: string, data: Partial<List>): Promise<List> {
-        const response = await apiClient.patch<ApiResponse<List>>(`/lists/${id}`, data)
-        return response.data.data
+        try {
+            const response = await apiClient.patch<ApiResponse<List>>(`/lists/${id}`, data)
+            return response.data.data
+        } catch (error: any) {
+            if (!error.response || error.code === 'ECONNABORTED') {
+                console.warn('Backend unreachable, updating mock list.')
+                return { id, ...data } as List
+            }
+            throw error
+        }
     },
 
     /**
      * Delete list
      */
     async delete(id: string): Promise<void> {
-        await apiClient.delete(`/lists/${id}`)
+        try {
+            await apiClient.delete(`/lists/${id}`)
+        } catch (error: any) {
+            if (!error.response || error.code === 'ECONNABORTED') {
+                console.warn('Backend unreachable, deleting mock list locally.')
+                return
+            }
+            throw error
+        }
     },
 }

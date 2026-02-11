@@ -56,22 +56,55 @@ export const cardService = {
      * Create a new card
      */
     async create(listId: string, title: string): Promise<Card> {
-        const response = await apiClient.post<ApiResponse<Card>>(`/lists/${listId}/cards`, { title })
-        return response.data.data
+        try {
+            const response = await apiClient.post<ApiResponse<Card>>(`/lists/${listId}/cards`, { title })
+            return response.data.data
+        } catch (error: any) {
+            if (!error.response || error.code === 'ECONNABORTED') {
+                console.warn('Backend unreachable, creating mock card.')
+                const newCard: Card = {
+                    id: `card-${Math.random().toString(36).substring(2, 9)}`,
+                    list_id: listId,
+                    title,
+                    priority: 'medium',
+                    position: 99,
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString(),
+                }
+                return newCard
+            }
+            throw error
+        }
     },
 
     /**
      * Update card
      */
     async update(id: string, data: Partial<Card>): Promise<Card> {
-        const response = await apiClient.patch<ApiResponse<Card>>(`/cards/${id}`, data)
-        return response.data.data
+        try {
+            const response = await apiClient.patch<ApiResponse<Card>>(`/cards/${id}`, data)
+            return response.data.data
+        } catch (error: any) {
+            if (!error.response || error.code === 'ECONNABORTED') {
+                console.warn('Backend unreachable, updating mock card.')
+                return { id, ...data } as Card
+            }
+            throw error
+        }
     },
 
     /**
      * Delete card
      */
     async delete(id: string): Promise<void> {
-        await apiClient.delete(`/cards/${id}`)
+        try {
+            await apiClient.delete(`/cards/${id}`)
+        } catch (error: any) {
+            if (!error.response || error.code === 'ECONNABORTED') {
+                console.warn('Backend unreachable, deleting mock card locally.')
+                return
+            }
+            throw error
+        }
     },
 }

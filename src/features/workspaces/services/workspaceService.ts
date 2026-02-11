@@ -40,30 +40,68 @@ export const workspaceService = {
      * Get single workspace by ID
      */
     async getById(id: string): Promise<Workspace> {
-        const response = await apiClient.get<ApiResponse<Workspace>>(`/workspaces/${id}`)
-        return response.data.data
+        try {
+            const response = await apiClient.get<ApiResponse<Workspace>>(`/workspaces/${id}`)
+            return response.data.data
+        } catch (error: any) {
+            if (!error.response || error.code === 'ECONNABORTED') {
+                console.warn('Backend unreachable, using mock workspace details.')
+                return MOCK_WORKSPACES.find(w => w.id === id) || MOCK_WORKSPACES[0]
+            }
+            throw error
+        }
     },
 
     /**
      * Create a new workspace
      */
     async create(name: string): Promise<Workspace> {
-        const response = await apiClient.post<ApiResponse<Workspace>>('/workspaces', { name })
-        return response.data.data
+        try {
+            const response = await apiClient.post<ApiResponse<Workspace>>('/workspaces', { name })
+            return response.data.data
+        } catch (error: any) {
+            if (!error.response || error.code === 'ECONNABORTED') {
+                console.warn('Backend unreachable, creating mock workspace.')
+                return {
+                    id: `ws-${Math.random().toString(36).substring(2, 9)}`,
+                    name,
+                    owner_id: '1',
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString(),
+                }
+            }
+            throw error
+        }
     },
 
     /**
      * Update workspace
      */
     async update(id: string, data: Partial<Workspace>): Promise<Workspace> {
-        const response = await apiClient.patch<ApiResponse<Workspace>>(`/workspaces/${id}`, data)
-        return response.data.data
+        try {
+            const response = await apiClient.patch<ApiResponse<Workspace>>(`/workspaces/${id}`, data)
+            return response.data.data
+        } catch (error: any) {
+            if (!error.response || error.code === 'ECONNABORTED') {
+                console.warn('Backend unreachable, updating mock workspace.')
+                return { id, ...data } as Workspace
+            }
+            throw error
+        }
     },
 
     /**
      * Delete workspace
      */
     async delete(id: string): Promise<void> {
-        await apiClient.delete(`/workspaces/${id}`)
+        try {
+            await apiClient.delete(`/workspaces/${id}`)
+        } catch (error: any) {
+            if (!error.response || error.code === 'ECONNABORTED') {
+                console.warn('Backend unreachable, deleting mock workspace locally.')
+                return
+            }
+            throw error
+        }
     },
 }

@@ -1,12 +1,31 @@
 import { useParams, Link } from 'react-router-dom'
 import { useWorkspace } from '../hooks/useWorkspaces'
 import { BoardList } from '@/features/boards'
-import { ChevronLeft, LayoutGrid, Users, Settings } from 'lucide-react'
+import { ChevronLeft, LayoutGrid, Users, Settings, Star } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
+import { useState } from 'react'
+import { WorkspaceSettingsModal } from './WorkspaceSettingsModal'
+import { WorkspaceMembersModal } from './WorkspaceMembersModal'
+import { useFavoritesStore } from '@/stores/favoritesStore'
 
 export function WorkspaceDetail() {
     const { id } = useParams<{ id: string }>()
     const { data: workspace, isLoading } = useWorkspace(id || '')
+    const { toggleFavorite, isFavorite } = useFavoritesStore()
+
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+    const [isMembersOpen, setIsMembersOpen] = useState(false)
+
+    const starred = isFavorite(workspace?.id || '')
+
+    const handleToggleStar = () => {
+        if (!workspace) return
+        toggleFavorite({
+            id: workspace.id,
+            type: 'workspace',
+            name: workspace.name
+        })
+    }
 
     if (isLoading) {
         return (
@@ -59,18 +78,26 @@ export function WorkspaceDetail() {
                             </div>
                             <span className="text-sm font-bold text-primary tracking-widest uppercase">Workspace</span>
                         </div>
-                        <h1 className="text-4xl font-extrabold tracking-tight">{workspace.name}</h1>
+                        <div className="flex items-center gap-4">
+                            <h1 className="text-4xl font-extrabold tracking-tight">{workspace.name}</h1>
+                            <button
+                                onClick={handleToggleStar}
+                                className={`p-2 rounded-full hover:bg-background/50 transition-all ${starred ? 'text-amber-500' : 'text-muted-foreground/30 hover:text-amber-500'}`}
+                            >
+                                <Star size={24} fill={starred ? 'currentColor' : 'none'} />
+                            </button>
+                        </div>
                         <p className="text-muted-foreground mt-2 max-w-xl">
                             Manage your boards, team members, and high-level project goals in this workspace.
                         </p>
                     </div>
 
                     <div className="flex items-center gap-3">
-                        <Button variant="outline" onClick={() => alert('Team management coming soon!')}>
+                        <Button variant="outline" onClick={() => setIsMembersOpen(true)}>
                             <Users size={18} className="mr-2" />
                             Members
                         </Button>
-                        <Button variant="outline" onClick={() => alert('Workspace settings coming soon!')}>
+                        <Button variant="outline" onClick={() => setIsSettingsOpen(true)}>
                             <Settings size={18} className="mr-2" />
                             Settings
                         </Button>
@@ -80,6 +107,18 @@ export function WorkspaceDetail() {
 
             {/* Board Section */}
             <BoardList workspaceId={workspace.id} />
+
+            <WorkspaceSettingsModal
+                workspace={workspace}
+                isOpen={isSettingsOpen}
+                onClose={() => setIsSettingsOpen(false)}
+            />
+
+            <WorkspaceMembersModal
+                workspace={workspace}
+                isOpen={isMembersOpen}
+                onClose={() => setIsMembersOpen(false)}
+            />
         </div>
     )
 }

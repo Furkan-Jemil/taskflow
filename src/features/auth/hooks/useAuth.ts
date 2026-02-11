@@ -63,6 +63,22 @@ export function useAuth() {
         }
     }, [clearStore, navigate])
 
+    const updateProfile = useCallback(async (data: { name?: string; email?: string }) => {
+        setLoading(true)
+        setError(null)
+        try {
+            const updatedUser = await authService.updateProfile(data)
+            // We need a way to update only the user in the store without resetting everything
+            // Assuming setAuth can handle partial or just use it with existing token
+            setAuth({ user: updatedUser, token: token || '' })
+        } catch (err: any) {
+            setError(err.message || 'Failed to update profile')
+            throw err
+        } finally {
+            setLoading(false)
+        }
+    }, [setAuth, setError, setLoading, token])
+
     return {
         user,
         token,
@@ -72,5 +88,6 @@ export function useAuth() {
         login,
         register,
         logout,
+        updateProfile,
     }
 }

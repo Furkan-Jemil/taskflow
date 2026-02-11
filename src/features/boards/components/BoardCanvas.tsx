@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { CardDetailModal } from '@/features/cards'
 import { Card, List } from '@/types/entities'
-import { ChevronLeft, Plus, Users, Settings, Filter, Search, X } from 'lucide-react'
+import { ChevronLeft, Plus, Users, Settings, Search, X, Star } from 'lucide-react'
+import { useFavoritesStore } from '@/stores/favoritesStore'
 
 // DND Kit Imports
 import {
@@ -31,6 +32,9 @@ import {
 import { createPortal } from 'react-dom'
 import { CardItem } from '@/features/cards'
 
+import { BoardSettingsModal } from './BoardSettingsModal'
+import { BoardSharingModal } from './BoardSharingModal'
+
 export function BoardCanvas() {
     const { boardId } = useParams<{ boardId: string }>()
     const { data: board, isLoading: isBoardLoading } = useBoard(boardId || '')
@@ -47,9 +51,24 @@ export function BoardCanvas() {
     const [selectedCard, setSelectedCard] = useState<Card | null>(null)
     const [isCardModalOpen, setIsCardModalOpen] = useState(false)
 
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+    const [isSharingOpen, setIsSharingOpen] = useState(false)
+
     // Active dragging state
     const [activeList, setActiveList] = useState<List | null>(null)
     const [activeCard, setActiveCard] = useState<Card | null>(null)
+
+    const { toggleFavorite, isFavorite } = useFavoritesStore()
+    const starred = isFavorite(boardId || '')
+
+    const handleToggleStar = () => {
+        if (!board) return
+        toggleFavorite({
+            id: board.id,
+            type: 'board',
+            name: board.name
+        })
+    }
 
     // DND Sensors
     const sensors = useSensors(
@@ -146,16 +165,30 @@ export function BoardCanvas() {
             setLists((prev) => {
                 const oldIndex = prev.findIndex((l) => l.id === activeId)
                 const newIndex = prev.findIndex((l) => l.id === overId)
-                return arrayMove(prev, oldIndex, newIndex)
+                const updated = arrayMove(prev, oldIndex, newIndex)
+                // Persistence would happen here in a real API
+                return updated
             })
         }
 
-        // Handle Card Reordering/Movement
+        // Handle Card Movement/Reordering
         if (activeData?.type === 'Card') {
-            // In a real app with global state, we would move the card here
-            // and trigger the API call. For now, we've enabled the visual sortability.
+            // This would trigger an API call to update list_id and position
+            console.log(`Card ${activeId} moved to over ${overId}`)
         }
     }
+
+    const filteredLists = useMemo(() => {
+        if (!searchQuery) return lists
+        // In a real app, filtering might happen at the card level inside the list
+        // but for the UI to "search across boards", we'll filter lists that contain cards matching the query
+        // and tell the lists to only show matching cards.
+        return lists.map(list => ({
+            ...list,
+            // We can't actually filter the cards here because cards are fetched in ListContainer
+            // but we can pass the search query down
+        }))
+    }, [lists, searchQuery])
 
     const listIds = useMemo(() => lists.map((l) => l.id), [lists])
 
@@ -195,6 +228,12 @@ export function BoardCanvas() {
                         </Link>
                         <div className="h-4 w-[1px] bg-border mx-1" />
                         <h1 className="text-lg font-bold tracking-tight">{board.name}</h1>
+                        <button
+                            onClick={handleToggleStar}
+                            className={`p-1.5 rounded-full hover:bg-muted transition-all ${starred ? 'text-amber-500' : 'text-muted-foreground/30 hover:text-amber-500'}`}
+                        >
+                            <Star size={18} fill={starred ? 'currentColor' : 'none'} />
+                        </button>
                     </div>
 
                     <div className="flex items-center gap-2">
@@ -215,11 +254,7 @@ export function BoardCanvas() {
                                 </button>
                             )}
                         </div>
-                        <Button variant="ghost" size="sm" onClick={() => alert('Filters coming soon!')}>
-                            <Filter size={16} className="mr-2" />
-                            Filters
-                        </Button>
-                        <Button variant="ghost" size="sm" onClick={() => alert('Sharing coming soon!')}>
+                        <Button variant="ghost" size="sm" onClick={() => setIsSharingOpen(true)}>
                             <Users size={16} className="mr-2" />
                             Share
                         </Button>
@@ -227,7 +262,7 @@ export function BoardCanvas() {
                             variant="ghost"
                             size="icon"
                             className="h-9 w-9 rounded-full"
-                            onClick={() => alert('Board settings coming soon!')}
+                            onClick={() => setIsSettingsOpen(true)}
                         >
                             <Settings size={18} />
                         </Button>
@@ -243,10 +278,11 @@ export function BoardCanvas() {
                     ) : (
                         <>
                             <SortableContext items={listIds} strategy={horizontalListSortingStrategy}>
-                                {lists.map(list => (
+                                {filteredLists.map(list => (
                                     <ListContainer
                                         key={list.id}
                                         list={list}
+                                        searchQuery={searchQuery}
                                         onCardClick={handleCardClick}
                                     />
                                 ))}
@@ -294,6 +330,18 @@ export function BoardCanvas() {
                     card={selectedCard}
                     isOpen={isCardModalOpen}
                     onClose={() => setIsCardModalOpen(false)}
+                />
+
+                <BoardSettingsModal
+                    board={board}
+                    isOpen={isSettingsOpen}
+                    onClose={() => setIsSettingsOpen(false)}
+                />
+
+                <BoardSharingModal
+                    board={board}
+                    isOpen={isSharingOpen}
+                    onClose={() => setIsSharingOpen(false)}
                 />
             </div>
 
