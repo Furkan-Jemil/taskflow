@@ -74,7 +74,7 @@ export default function Settings() {
                 {/* Content Area */}
                 <div className="md:col-span-2 space-y-6">
                     {activeTab === 'general' ? (
-                        <div className="p-8 bg-card border rounded-2xl shadow-sm space-y-8">
+                        <div className="p-8 bg-card border rounded-2xl shadow-sm space-y-8 text-foreground">
                             <div>
                                 <h3 className="text-xl font-bold mb-1">General Settings</h3>
                                 <p className="text-sm text-muted-foreground">Update your personal information and contact details.</p>
