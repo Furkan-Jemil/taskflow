@@ -15,7 +15,7 @@ const profileSchema = z.object({
 type ProfileFormValues = z.infer<typeof profileSchema>
 
 export default function Settings() {
-    const { user, updateProfile, isLoading } = useAuth()
+    const { updateProfile, isLoading } = useAuth()
     const [activeTab, setActiveTab] = useState('general')
 
     const {
@@ -24,10 +24,10 @@ export default function Settings() {
         formState: { errors },
     } = useForm<ProfileFormValues>({
         resolver: zodResolver(profileSchema),
-        values: user ? {
-            name: user.name,
-            email: user.email,
-        } : undefined,
+        defaultValues: {
+            name: '',
+            email: '',
+        },
     })
 
     const onSubmit = async (data: ProfileFormValues) => {
@@ -90,7 +90,8 @@ export default function Settings() {
                                         <Input
                                             {...register('name')}
                                             error={errors.name?.message}
-                                            placeholder="Your full name"
+                                            placeholder="Demo User"
+                                            className="placeholder:text-slate-400"
                                         />
                                     </div>
                                     <div className="space-y-2">
@@ -101,7 +102,8 @@ export default function Settings() {
                                         <Input
                                             {...register('email')}
                                             error={errors.email?.message}
-                                            placeholder="your@email.com"
+                                            placeholder="demo@example.com"
+                                            className="placeholder:text-slate-400"
                                         />
                                     </div>
                                 </div>
