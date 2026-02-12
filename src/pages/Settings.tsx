@@ -61,8 +61,8 @@ export default function Settings() {
                             variant="ghost"
                             onClick={() => setActiveTab(tab.id)}
                             className={`w-full justify-start gap-3 transition-all ${activeTab === tab.id
-                                    ? 'bg-primary/10 text-primary font-bold'
-                                    : 'text-muted-foreground hover:bg-muted'
+                                ? 'bg-white text-[#1F2937] font-bold shadow-sm border border-slate-200'
+                                : 'text-muted-foreground hover:bg-muted'
                                 }`}
                         >
                             <tab.icon size={18} />
@@ -117,7 +117,7 @@ export default function Settings() {
                     ) : (
                         <div className="p-12 bg-muted/30 border-2 border-dashed rounded-2xl text-center">
                             <h3 className="text-lg font-bold mb-2 capitalize">{activeTab} Settings</h3>
-                            <p className="text-sm text-muted-foreground italic">
+                            <p className="text-sm text-[#9CA3AF] italic">
                                 This section is currently under development.
                             </p>
                         </div>
