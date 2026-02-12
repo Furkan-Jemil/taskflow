@@ -45,7 +45,7 @@ export function BoardList({ workspaceId }: BoardListProps) {
                         Create your first board to start tracking tasks and progress.
                     </p>
                     <Button variant="outline" size="sm" className="mt-4" onClick={() => setIsModalOpen(true)}>
-                        Create Board
+                        New Board
                     </Button>
                 </div>
             ) : (
