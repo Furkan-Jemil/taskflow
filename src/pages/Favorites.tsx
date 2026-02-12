@@ -19,10 +19,10 @@ export default function Favorites() {
                     </p>
                     <div className="mt-10 p-12 border-2 border-dashed rounded-2xl bg-muted/30">
                         <LayoutGrid className="mx-auto text-muted-foreground/30 mb-4" size={48} />
-                        <p className="text-sm text-muted-foreground italic">You haven't added any favorites yet.</p>
+                        <p className="text-sm text-[#D1D5DB] italic">You haven't added any favorites yet.</p>
                         <Link
                             to="/workspaces"
-                            className="inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2 mt-6 text-sm"
+                            className="inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2 mt-6 text-sm text-[#1F2937]"
                         >
                             Go to Workspaces
                         </Link>
