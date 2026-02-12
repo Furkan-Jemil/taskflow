@@ -64,8 +64,8 @@ export function BoardList({ workspaceId }: BoardListProps) {
                                     Open
                                 </div>
                             </div>
-                            <h3 className="font-semibold group-hover:text-primary transition-colors truncate">{board.name}</h3>
-                            <div className="flex items-center gap-1.5 mt-2 text-[11px] text-muted-foreground">
+                            <h3 className="font-semibold text-[#111827] group-hover:text-primary transition-colors truncate">{board.name}</h3>
+                            <div className="flex items-center gap-1.5 mt-2 text-[11px] text-[#111827]/70">
                                 <Clock size={12} />
                                 <span>Updated {formatDate(board.updated_at)}</span>
                             </div>
@@ -76,8 +76,8 @@ export function BoardList({ workspaceId }: BoardListProps) {
                         onClick={() => setIsModalOpen(true)}
                         className="flex flex-col items-center justify-center p-4 border-2 border-dashed rounded-lg hover:border-primary/50 hover:bg-muted/30 transition-all group h-32"
                     >
-                        <Plus size={24} className="text-muted-foreground group-hover:text-primary transition-colors" />
-                        <span className="text-sm font-medium text-muted-foreground group-hover:text-primary transition-colors mt-2">New Board</span>
+                        <Plus size={24} className="text-[#D1D5DB] group-hover:text-primary transition-colors" />
+                        <span className="text-sm font-medium text-[#D1D5DB] group-hover:text-primary transition-colors mt-2">New Board</span>
                     </button>
                 </div>
             )}
