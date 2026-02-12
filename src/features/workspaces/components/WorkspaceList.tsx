@@ -123,14 +123,14 @@ export function WorkspaceList() {
                                     <LayoutGrid size={24} />
                                 </div>
                                 <div className="flex -space-x-2">
-                                    <div className="w-8 h-8 rounded-full border-2 border-background bg-slate-200 flex items-center justify-center text-[10px] font-bold">JD</div>
-                                    <div className="w-8 h-8 rounded-full border-2 border-background bg-slate-100 flex items-center justify-center text-[10px] text-muted-foreground border-dashed">+3</div>
+                                    <div className="w-8 h-8 rounded-full border-2 border-background bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-700">JD</div>
+                                    <div className="w-8 h-8 rounded-full border-2 border-background bg-slate-100 flex items-center justify-center text-[10px] text-slate-600 border-dashed font-medium">+3</div>
                                 </div>
                             </div>
-                            <h3 className="text-lg font-bold group-hover:text-primary transition-colors">{ws.name}</h3>
-                            <div className="flex items-center gap-4 mt-6 pt-4 border-t text-sm text-muted-foreground">
+                            <h3 className="text-lg font-bold text-slate-900 group-hover:text-primary transition-colors">{ws.name}</h3>
+                            <div className="flex items-center gap-4 mt-6 pt-4 border-t text-sm text-slate-600">
                                 <button
-                                    className="flex items-center gap-1 hover:text-primary transition-colors"
+                                    className="flex items-center gap-1 hover:text-primary transition-colors font-medium"
                                     onClick={(e) => {
                                         e.preventDefault()
                                         alert('Team management coming soon!')
@@ -140,7 +140,7 @@ export function WorkspaceList() {
                                     <span>4 Members</span>
                                 </button>
                                 <button
-                                    className="flex items-center gap-1 hover:text-primary transition-colors"
+                                    className="flex items-center gap-1 hover:text-primary transition-colors font-medium"
                                     onClick={(e) => {
                                         e.preventDefault()
                                         alert('Workspace settings coming soon!')
