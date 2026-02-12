@@ -93,11 +93,19 @@ export function WorkspaceDetail() {
                     </div>
 
                     <div className="flex items-center gap-3">
-                        <Button variant="outline" onClick={() => setIsMembersOpen(true)}>
+                        <Button
+                            variant="outline"
+                            onClick={() => setIsMembersOpen(true)}
+                            className="bg-white/10 backdrop-blur-md border-white/20 hover:bg-white/20 transition-all text-foreground"
+                        >
                             <Users size={18} className="mr-2" />
                             Members
                         </Button>
-                        <Button variant="outline" onClick={() => setIsSettingsOpen(true)}>
+                        <Button
+                            variant="outline"
+                            onClick={() => setIsSettingsOpen(true)}
+                            className="bg-white/10 backdrop-blur-md border-white/20 hover:bg-white/20 transition-all text-foreground"
+                        >
                             <Settings size={18} className="mr-2" />
                             Settings
                         </Button>
