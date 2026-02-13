@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useCallback } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { useBoard } from '@/features/boards/hooks/useBoards'
@@ -62,7 +62,8 @@ export function BoardCanvas() {
     const [activeList, setActiveList] = useState<List | null>(null)
     const [activeCard, setActiveCard] = useState<Card | null>(null)
 
-    const { toggleFavorite, isFavorite } = useFavoritesStore()
+    const toggleFavorite = useFavoritesStore((state) => state.toggleFavorite)
+    const isFavorite = useFavoritesStore((state) => state.isFavorite)
     const starred = isFavorite(boardId || '')
 
     const handleToggleStar = () => {
@@ -93,12 +94,12 @@ export function BoardCanvas() {
         }
     }, [serverLists])
 
-    const handleCardClick = (card: Card) => {
+    const handleCardClick = useCallback((card: Card) => {
         setSelectedCard(card)
         setIsCardModalOpen(true)
-    }
+    }, [])
 
-    const handleAddList = () => {
+    const handleAddList = useCallback(() => {
         if (!newListTitle.trim()) return
         createList(newListTitle, {
             onSuccess: () => {
@@ -106,11 +107,11 @@ export function BoardCanvas() {
                 setIsAddingList(false)
             }
         })
-    }
+    }, [createList, newListTitle])
 
     // --- DND LOGIC ---
 
-    const findContainer = (id: string) => {
+    const findContainer = useCallback((id: string) => {
         // If id is a list id
         if (lists.some((l: List) => l.id === id)) return id
 
@@ -123,9 +124,9 @@ export function BoardCanvas() {
         }
 
         return null
-    }
+    }, [lists, queryClient])
 
-    function onDragStart(event: DragStartEvent) {
+    const onDragStart = useCallback((event: DragStartEvent) => {
         const { active } = event
         const data = active.data.current
 
@@ -134,9 +135,9 @@ export function BoardCanvas() {
         } else if (data?.type === 'Card') {
             setActiveCard(data.card)
         }
-    }
+    }, [])
 
-    function onDragOver(event: DragOverEvent) {
+    const onDragOver = useCallback((event: DragOverEvent) => {
         const { active, over } = event
         if (!over) return
 
@@ -182,9 +183,9 @@ export function BoardCanvas() {
 
             return newCards
         })
-    }
+    }, [findContainer, queryClient])
 
-    function onDragEnd(event: DragEndEvent) {
+    const onDragEnd = useCallback((event: DragEndEvent) => {
         const { active, over } = event
         setActiveList(null)
         setActiveCard(null)
@@ -233,7 +234,7 @@ export function BoardCanvas() {
                 }
             })
         }
-    }
+    }, [lists, findContainer, queryClient, updateList, updateCard])
 
     const filteredLists = useMemo(() => {
         if (!searchQuery) return lists
