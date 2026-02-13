@@ -5,7 +5,8 @@ import { useUIStore } from '@/stores/uiStore'
 import { CreateWorkspaceModal } from '@/features/workspaces'
 
 export function AppLayout() {
-    const { isCreateWorkspaceModalOpen, setCreateWorkspaceModalOpen } = useUIStore()
+    const isCreateWorkspaceModalOpen = useUIStore((state) => state.isCreateWorkspaceModalOpen)
+    const setCreateWorkspaceModalOpen = useUIStore((state) => state.setCreateWorkspaceModalOpen)
 
     return (
         <div className="relative flex min-h-screen flex-col bg-[#0f172a] text-slate-50 overflow-hidden">
