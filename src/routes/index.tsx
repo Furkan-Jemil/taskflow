@@ -1,4 +1,5 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import { LoginForm, RegisterForm, ProtectedRoute } from '@/features/auth'
 import { WorkspaceList, WorkspaceDetail } from '@/features/workspaces'
 import { BoardCanvas } from '@/features/boards'
@@ -11,6 +12,19 @@ import Favorites from '@/pages/Favorites'
  * Application route definitions
  */
 function AppRoutes() {
+    const navigate = useNavigate()
+
+    useEffect(() => {
+        const handleUnauthorized = () => {
+            navigate('/login')
+        }
+
+        window.addEventListener('auth:unauthorized', handleUnauthorized)
+        return () => {
+            window.removeEventListener('auth:unauthorized', handleUnauthorized)
+        }
+    }, [navigate])
+
     return (
         <Routes>
             {/* Public Routes */}
