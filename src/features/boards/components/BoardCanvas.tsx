@@ -1,5 +1,5 @@
-import { useState, useMemo, useEffect, useCallback } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useState, useMemo, useCallback } from 'react'
+import { useParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { useBoard } from '@/features/boards/hooks/useBoards'
 import { useLists, useCreateList, useUpdateList } from '@/features/lists/hooks/useLists'
@@ -7,34 +7,18 @@ import { ListContainer } from '@/features/lists/components/ListContainer'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { CardDetailModal, useUpdateCard } from '@/features/cards'
-import { Card, List } from '@/types/entities'
-import { ChevronLeft, Plus, Users, Settings, Search, X, Star } from 'lucide-react'
+import { Card } from '@/types/entities'
+import { Plus, X } from 'lucide-react'
 import { useFavoritesStore } from '@/stores/favoritesStore'
-
-// DND Kit Imports
-import {
-    DndContext,
-    DragOverlay,
-    closestCorners,
-    KeyboardSensor,
-    PointerSensor,
-    useSensor,
-    useSensors,
-    DragStartEvent,
-    DragOverEvent,
-    DragEndEvent,
-} from '@dnd-kit/core'
-import {
-    arrayMove,
-    SortableContext,
-    sortableKeyboardCoordinates,
-    horizontalListSortingStrategy,
-} from '@dnd-kit/sortable'
+import { useModal } from '@/hooks/useModal'
+import { useBoardDnd } from '@/features/boards/hooks/useBoardDnd'
+import { DndContext, DragOverlay } from '@dnd-kit/core'
 import { createPortal } from 'react-dom'
+import { SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortable'
 import { CardItem } from '@/features/cards'
-
 import { BoardSettingsModal } from './BoardSettingsModal'
 import { BoardSharingModal } from './BoardSharingModal'
+import { BoardHeader } from './BoardHeader'
 
 export function BoardCanvas() {
     const { boardId } = useParams<{ boardId: string }>()
@@ -43,61 +27,52 @@ export function BoardCanvas() {
     const { data: serverLists, isLoading: isListsLoading } = useLists(boardId || '')
     const { mutate: createList, isPending: isCreatingList } = useCreateList(boardId || '')
     const { mutate: updateList } = useUpdateList(boardId || '')
-    const { mutate: updateCard } = useUpdateCard('') // listId not strictly needed for mutation itself if we invalidate correctly
+    const { mutate: updateCard } = useUpdateCard('')
 
-    // Local state for optimistic updates and DND
-    const [lists, setLists] = useState<List[]>([])
+    // Modals
+    const settingsModal = useModal()
+    const sharingModal = useModal()
+    const cardModal = useModal()
+
     const [searchQuery, setSearchQuery] = useState('')
-
     const [isAddingList, setIsAddingList] = useState(false)
     const [newListTitle, setNewListTitle] = useState('')
-
     const [selectedCard, setSelectedCard] = useState<Card | null>(null)
-    const [isCardModalOpen, setIsCardModalOpen] = useState(false)
-
-    const [isSettingsOpen, setIsSettingsOpen] = useState(false)
-    const [isSharingOpen, setIsSharingOpen] = useState(false)
-
-    // Active dragging state
-    const [activeList, setActiveList] = useState<List | null>(null)
-    const [activeCard, setActiveCard] = useState<Card | null>(null)
 
     const toggleFavorite = useFavoritesStore((state) => state.toggleFavorite)
     const isFavorite = useFavoritesStore((state) => state.isFavorite)
     const starred = isFavorite(boardId || '')
 
-    const handleToggleStar = () => {
+    // DND Hook
+    const {
+        lists,
+        activeList,
+        activeCard,
+        sensors,
+        onDragStart,
+        onDragOver,
+        onDragEnd,
+        closestCorners
+    } = useBoardDnd({
+        serverLists,
+        queryClient,
+        updateList,
+        updateCard
+    })
+
+    const handleToggleStar = useCallback(() => {
         if (!board) return
         toggleFavorite({
             id: board.id,
             type: 'board',
             name: board.name
         })
-    }
-
-    // DND Sensors
-    const sensors = useSensors(
-        useSensor(PointerSensor, {
-            activationConstraint: {
-                distance: 8, // Avoid accidental drags when clicking
-            },
-        }),
-        useSensor(KeyboardSensor, {
-            coordinateGetter: sortableKeyboardCoordinates,
-        })
-    )
-
-    // Update local state when server data changes
-    useEffect(() => {
-        if (serverLists) {
-            setLists(serverLists)
-        }
-    }, [serverLists])
+    }, [board, toggleFavorite])
 
     const handleCardClick = useCallback((card: Card) => {
         setSelectedCard(card)
-        setIsCardModalOpen(true)
-    }, [])
+        cardModal.open()
+    }, [cardModal])
 
     const handleAddList = useCallback(() => {
         if (!newListTitle.trim()) return
@@ -109,146 +84,14 @@ export function BoardCanvas() {
         })
     }, [createList, newListTitle])
 
-    // --- DND LOGIC ---
-
-    const findContainer = useCallback((id: string) => {
-        // If id is a list id
-        if (lists.some((l: List) => l.id === id)) return id
-
-        // If id is a card id, find which list it belongs to in the React Query cache
-        const allCardQueries = queryClient.getQueriesData<Card[]>({ queryKey: ['cards'] })
-        for (const [queryKey, cards] of allCardQueries) {
-            if (cards && cards.some((c: Card) => c.id === id)) {
-                return (queryKey[1] as string) // listId is at index 1
-            }
-        }
-
-        return null
-    }, [lists, queryClient])
-
-    const onDragStart = useCallback((event: DragStartEvent) => {
-        const { active } = event
-        const data = active.data.current
-
-        if (data?.type === 'List') {
-            setActiveList(data.list)
-        } else if (data?.type === 'Card') {
-            setActiveCard(data.card)
-        }
-    }, [])
-
-    const onDragOver = useCallback((event: DragOverEvent) => {
-        const { active, over } = event
-        if (!over) return
-
-        const activeId = active.id as string
-        const overId = over.id as string
-
-        if (activeId === overId) return
-
-        const activeData = active.data.current
-        if (activeData?.type !== 'Card') return
-
-        const overData = over.data.current
-
-        const activeContainer = findContainer(activeId)
-        const overContainer = findContainer(overId)
-
-        if (!activeContainer || !overContainer || activeContainer === overContainer) return
-
-        // Moving card between lists
-        queryClient.setQueryData(['cards', activeContainer], (prev: Card[] | undefined) => {
-            if (!prev) return []
-            const activeCard = prev.find(c => c.id === activeId)
-            if (!activeCard) return prev
-            return prev.filter(c => c.id !== activeId)
-        })
-
-        queryClient.setQueryData(['cards', overContainer], (prev: Card[] | undefined) => {
-            const activeCard = activeData.card
-            const currentCards = prev || []
-
-            // Find position to insert
-            let newIndex
-            const isOverACard = overData?.type === 'Card'
-            if (isOverACard) {
-                newIndex = currentCards.findIndex(c => c.id === overId)
-            } else {
-                newIndex = currentCards.length
-            }
-
-            const updatedCard = { ...activeCard, list_id: overContainer }
-            const newCards = [...currentCards]
-            newCards.splice(newIndex, 0, updatedCard)
-
-            return newCards
-        })
-    }, [findContainer, queryClient])
-
-    const onDragEnd = useCallback((event: DragEndEvent) => {
-        const { active, over } = event
-        setActiveList(null)
-        setActiveCard(null)
-
-        if (!over) return
-
-        const activeId = active.id as string
-        const overId = over.id as string
-
-        const activeData = active.data.current
-
-        // 1. Handle List Reordering
-        if (activeData?.type === 'List') {
-            if (activeId !== overId) {
-                const oldIndex = lists.findIndex((l: List) => l.id === activeId)
-                const newIndex = lists.findIndex((l: List) => l.id === overId)
-                const newLists = arrayMove(lists, oldIndex, newIndex)
-                setLists(newLists)
-
-                // Persistence
-                newLists.forEach((list: List, index: number) => {
-                    if (list.position !== index + 1) {
-                        updateList({ id: list.id, data: { position: index + 1 } })
-                    }
-                })
-            }
-            return
-        }
-
-        // 2. Handle Card Drop
-        if (activeData?.type === 'Card') {
-            const activeContainer = findContainer(activeId)
-            const overContainer = findContainer(overId)
-
-            if (!activeContainer || !overContainer) return
-
-            const cardsInOver = queryClient.getQueryData<Card[]>(['cards', overContainer]) || []
-            const newIndex = cardsInOver.findIndex(c => c.id === activeId)
-
-            // Trigger persistence API call
-            updateCard({
-                id: activeId,
-                data: {
-                    list_id: overContainer,
-                    position: newIndex + 1
-                }
-            })
-        }
-    }, [lists, findContainer, queryClient, updateList, updateCard])
-
     const filteredLists = useMemo(() => {
         if (!searchQuery) return lists
-        // In a real app, filtering might happen at the card level inside the list
-        // but for the UI to "search across boards", we'll filter lists that contain cards matching the query
-        // and tell the lists to only show matching cards.
-        return lists.map((list: List) => ({
+        return lists.map((list) => ({
             ...list,
-            // We can't actually filter the cards here because cards are fetched in ListContainer
-            // but we can pass the search query down
         }))
     }, [lists, searchQuery])
 
-    const listIds = useMemo(() => lists.map((l: List) => l.id), [lists])
+    const listIds = useMemo(() => lists.map((l) => l.id), [lists])
 
     if (isBoardLoading) {
         return (
@@ -279,57 +122,15 @@ export function BoardCanvas() {
                 <div className="absolute bottom-[-10%] right-[-10%] w-[30%] h-[30%] bg-purple-500/10 rounded-full blur-[100px] pointer-events-none" />
 
                 {/* Board Header */}
-                <div className="h-16 border-b border-slate-800 bg-slate-900/40 backdrop-blur-xl flex items-center justify-between px-6 shrink-0 z-10">
-                    <div className="flex items-center gap-4">
-                        <Link
-                            to={`/workspaces/${board.workspace_id}`}
-                            className="p-2 hover:bg-muted rounded-full transition-colors"
-                            title="Back to Workspace"
-                        >
-                            <ChevronLeft size={20} />
-                        </Link>
-                        <div className="h-4 w-[1px] bg-border mx-1" />
-                        <h1 className="text-lg font-bold tracking-tight">{board.name}</h1>
-                        <button
-                            onClick={handleToggleStar}
-                            className={`p-1.5 rounded-full hover:bg-muted transition-all ${starred ? 'text-amber-500' : 'text-muted-foreground/30 hover:text-amber-500'}`}
-                        >
-                            <Star size={18} fill={starred ? 'currentColor' : 'none'} />
-                        </button>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                        <div className="relative mr-4 hidden md:block">
-                            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                            <Input
-                                placeholder="Search tasks..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-64 h-9 pl-9 bg-muted/50 border-none focus-visible:ring-1"
-                            />
-                            {searchQuery && (
-                                <button
-                                    onClick={() => setSearchQuery('')}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                                >
-                                    <X size={12} />
-                                </button>
-                            )}
-                        </div>
-                        <Button variant="ghost" size="sm" onClick={() => setIsSharingOpen(true)}>
-                            <Users size={16} className="mr-2" />
-                            Share
-                        </Button>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-9 w-9 rounded-full"
-                            onClick={() => setIsSettingsOpen(true)}
-                        >
-                            <Settings size={18} />
-                        </Button>
-                    </div>
-                </div>
+                <BoardHeader
+                    board={board}
+                    starred={starred}
+                    searchQuery={searchQuery}
+                    setSearchQuery={setSearchQuery}
+                    onToggleStar={handleToggleStar}
+                    onOpenSharing={sharingModal.open}
+                    onOpenSettings={settingsModal.open}
+                />
 
                 {/* Board Content (Horizontal Split) */}
                 <div className="flex-1 overflow-x-auto p-6 flex items-start gap-6 custom-scrollbar-h">
@@ -340,7 +141,7 @@ export function BoardCanvas() {
                     ) : (
                         <>
                             <SortableContext items={listIds} strategy={horizontalListSortingStrategy}>
-                                {filteredLists.map((list: List) => (
+                                {filteredLists.map((list) => (
                                     <ListContainer
                                         key={list.id}
                                         list={list}
@@ -390,20 +191,20 @@ export function BoardCanvas() {
 
                 <CardDetailModal
                     card={selectedCard}
-                    isOpen={isCardModalOpen}
-                    onClose={() => setIsCardModalOpen(false)}
+                    isOpen={cardModal.isOpen}
+                    onClose={cardModal.close}
                 />
 
                 <BoardSettingsModal
                     board={board}
-                    isOpen={isSettingsOpen}
-                    onClose={() => setIsSettingsOpen(false)}
+                    isOpen={settingsModal.isOpen}
+                    onClose={settingsModal.close}
                 />
 
                 <BoardSharingModal
                     board={board}
-                    isOpen={isSharingOpen}
-                    onClose={() => setIsSharingOpen(false)}
+                    isOpen={sharingModal.isOpen}
+                    onClose={sharingModal.close}
                 />
             </div>
 
