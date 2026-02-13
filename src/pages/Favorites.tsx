@@ -3,7 +3,7 @@ import { useFavoritesStore } from '@/stores/favoritesStore'
 import { Link } from 'react-router-dom'
 
 export default function Favorites() {
-    const { favorites } = useFavoritesStore()
+    const favorites = useFavoritesStore((state) => state.favorites)
 
     if (favorites.length === 0) {
         return (
