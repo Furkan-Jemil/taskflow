@@ -30,12 +30,9 @@ apiClient.interceptors.response.use(
         const message = error.response?.data?.message || error.message || 'An unexpected error occurred'
 
         if (error.response?.status === 401) {
-            // Token expired or invalid - clear auth and redirect to login
+            // Token expired or invalid - clear auth and notification
             localStorage.removeItem('auth_token')
-            // Using window.location.href as a fallback for non-react contexts
-            if (!window.location.pathname.includes('/login')) {
-                window.location.href = '/login'
-            }
+            window.dispatchEvent(new Event('auth:unauthorized'))
         }
 
         // Attach the processed message to the error object
