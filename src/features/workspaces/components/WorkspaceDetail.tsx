@@ -11,7 +11,8 @@ import { useFavoritesStore } from '@/stores/favoritesStore'
 export function WorkspaceDetail() {
     const { id } = useParams<{ id: string }>()
     const { data: workspace, isLoading } = useWorkspace(id || '')
-    const { toggleFavorite, isFavorite } = useFavoritesStore()
+    const toggleFavorite = useFavoritesStore((state) => state.toggleFavorite)
+    const isFavorite = useFavoritesStore((state) => state.isFavorite)
 
     const [isSettingsOpen, setIsSettingsOpen] = useState(false)
     const [isMembersOpen, setIsMembersOpen] = useState(false)
