@@ -16,8 +16,8 @@ const navigation = [
 export function Sidebar() {
     const location = useLocation()
     const { data: workspaces } = useWorkspaces()
-    const { setCreateWorkspaceModalOpen } = useUIStore()
-    const { favorites } = useFavoritesStore()
+    const setCreateWorkspaceModalOpen = useUIStore((state) => state.setCreateWorkspaceModalOpen)
+    const favorites = useFavoritesStore((state) => state.favorites)
 
     return (
         <aside className="hidden md:flex flex-col w-64 border-r border-slate-800 bg-slate-900/60 backdrop-blur-xl h-[calc(100vh-3.5rem)] sticky top-14 z-20">
