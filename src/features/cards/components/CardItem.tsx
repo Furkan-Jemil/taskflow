@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { Card } from '@/types/entities'
 import { cn } from '@/lib/utils'
 import { Calendar, AlignLeft, AlertCircle } from 'lucide-react'
@@ -10,7 +11,7 @@ interface CardItemProps {
     onClick: (card: Card) => void
 }
 
-export function CardItem({ card, onClick }: CardItemProps) {
+export const CardItem = memo(function CardItem({ card, onClick }: CardItemProps) {
     const {
         attributes,
         listeners,
@@ -94,4 +95,4 @@ export function CardItem({ card, onClick }: CardItemProps) {
             </div>
         </div>
     )
-}
+})
