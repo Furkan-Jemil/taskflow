@@ -3,7 +3,7 @@ import { LayoutDashboard, Users, Settings, Plus, Star, LayoutGrid } from 'lucide
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/Button'
 import { useWorkspaces } from '@/features/workspaces/hooks/useWorkspaces'
-import { useUIStore } from '@/store/uiStore'
+import { useUIStore } from '@/stores/uiStore'
 import { useFavoritesStore } from '@/stores/favoritesStore'
 
 const navigation = [

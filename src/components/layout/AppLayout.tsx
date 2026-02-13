@@ -1,7 +1,7 @@
 import { Outlet } from 'react-router-dom'
 import { Header } from './Header'
 import { Sidebar } from './Sidebar'
-import { useUIStore } from '@/store/uiStore'
+import { useUIStore } from '@/stores/uiStore'
 import { CreateWorkspaceModal } from '@/features/workspaces'
 
 export function AppLayout() {
