@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, memo } from 'react'
 import { List, Card } from '@/types/entities'
 import { CardItem, useCards, useCreateCard } from '@/features/cards'
 import { useUpdateList, useDeleteList } from '../hooks/useLists'
@@ -14,7 +14,7 @@ interface ListContainerProps {
     onCardClick: (card: Card) => void
 }
 
-export function ListContainer({ list, searchQuery, onCardClick }: ListContainerProps) {
+export const ListContainer = memo(function ListContainer({ list, searchQuery, onCardClick }: ListContainerProps) {
     const { data: cards, isLoading } = useCards(list.id)
     const { mutate: createCard, isPending: isCreating } = useCreateCard(list.id)
     const { mutate: updateList } = useUpdateList(list.board_id)
@@ -197,4 +197,4 @@ export function ListContainer({ list, searchQuery, onCardClick }: ListContainerP
             </div>
         </div>
     )
-}
+})
