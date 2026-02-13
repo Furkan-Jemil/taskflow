@@ -1,4 +1,4 @@
-import { useUIStore } from '@/store/uiStore'
+import { useUIStore } from '@/stores/uiStore'
 import { CheckCircle2, AlertCircle, Info, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
