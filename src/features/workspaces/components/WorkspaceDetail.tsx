@@ -3,10 +3,10 @@ import { useWorkspace } from '../hooks/useWorkspaces'
 import { BoardList } from '@/features/boards'
 import { ChevronLeft, LayoutGrid, Users, Settings, Star } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
-import { useState } from 'react'
 import { WorkspaceSettingsModal } from './WorkspaceSettingsModal'
 import { WorkspaceMembersModal } from './WorkspaceMembersModal'
 import { useFavoritesStore } from '@/stores/favoritesStore'
+import { useModal } from '@/hooks/useModal'
 
 export function WorkspaceDetail() {
     const { id } = useParams<{ id: string }>()
@@ -14,8 +14,8 @@ export function WorkspaceDetail() {
     const toggleFavorite = useFavoritesStore((state) => state.toggleFavorite)
     const isFavorite = useFavoritesStore((state) => state.isFavorite)
 
-    const [isSettingsOpen, setIsSettingsOpen] = useState(false)
-    const [isMembersOpen, setIsMembersOpen] = useState(false)
+    const settingsModal = useModal()
+    const membersModal = useModal()
 
     const starred = isFavorite(workspace?.id || '')
 
@@ -96,7 +96,7 @@ export function WorkspaceDetail() {
                     <div className="flex items-center gap-3">
                         <Button
                             variant="outline"
-                            onClick={() => setIsMembersOpen(true)}
+                            onClick={membersModal.open}
                             className="bg-white/10 backdrop-blur-md border-white/20 hover:bg-white/20 transition-all text-foreground"
                         >
                             <Users size={18} className="mr-2" />
@@ -104,7 +104,7 @@ export function WorkspaceDetail() {
                         </Button>
                         <Button
                             variant="outline"
-                            onClick={() => setIsSettingsOpen(true)}
+                            onClick={settingsModal.open}
                             className="bg-white/10 backdrop-blur-md border-white/20 hover:bg-white/20 transition-all text-foreground"
                         >
                             <Settings size={18} className="mr-2" />
@@ -119,14 +119,14 @@ export function WorkspaceDetail() {
 
             <WorkspaceSettingsModal
                 workspace={workspace}
-                isOpen={isSettingsOpen}
-                onClose={() => setIsSettingsOpen(false)}
+                isOpen={settingsModal.isOpen}
+                onClose={settingsModal.close}
             />
 
             <WorkspaceMembersModal
                 workspace={workspace}
-                isOpen={isMembersOpen}
-                onClose={() => setIsMembersOpen(false)}
+                isOpen={membersModal.isOpen}
+                onClose={membersModal.close}
             />
         </div>
     )
