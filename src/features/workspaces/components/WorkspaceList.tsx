@@ -1,24 +1,52 @@
-import { useState } from 'react'
+import { useEffect } from 'react'
 import { useWorkspaces } from '../hooks/useWorkspaces'
 import { Button } from '@/components/ui/Button'
-import { CreateWorkspaceModal } from './CreateWorkspaceModal'
-import { Plus, LayoutGrid, Users, Settings, Activity, Briefcase, Zap } from 'lucide-react'
+import { Skeleton } from '@/components/ui/Skeleton'
+import { Plus, LayoutGrid, Users, Settings, Activity, Briefcase, Zap, Database } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Workspace } from '@/types/entities'
+import { useUIStore } from '@/stores/uiStore'
+import { seedDemoData } from '@/utils/seedData'
+import { useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
+import { useToast } from '@/hooks/useToast'
 
 export function WorkspaceList() {
     const { data: workspaces, isLoading } = useWorkspaces()
-    const [isModalOpen, setIsModalOpen] = useState(false)
+    const setCreateWorkspaceModalOpen = useUIStore((state) => state.setCreateWorkspaceModalOpen)
+    const [isSeeding, setIsSeeding] = useState(false)
+    const queryClient = useQueryClient()
+    const { toast } = useToast()
+
+    const handleSeedData = async () => {
+        setIsSeeding(true)
+        try {
+            await seedDemoData()
+            await queryClient.invalidateQueries({ queryKey: ['workspaces'] })
+            toast({ message: 'Demo workspaces created successfully!', type: 'success' })
+        } catch (error) {
+            toast({ message: 'Failed to create demo data', type: 'error' })
+        } finally {
+            setIsSeeding(false)
+        }
+    }
+
+    // Auto-open modal if no workspaces found
+    useEffect(() => {
+        if (!isLoading && workspaces && workspaces.length === 0) {
+            setCreateWorkspaceModalOpen(true)
+        }
+    }, [isLoading, workspaces, setCreateWorkspaceModalOpen])
 
     if (isLoading) {
         return (
             <div className="space-y-12 animate-pulse">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {[1, 2, 3].map(i => <div key={i} className="h-32 bg-muted rounded-2xl" />)}
+                    {[1, 2, 3].map(i => <Skeleton key={i} className="h-32 rounded-2xl" />)}
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {[1, 2, 3].map((i) => (
-                        <div key={i} className="h-40 bg-muted rounded-xl border" />
+                        <Skeleton key={i} className="h-40 rounded-xl border" />
                     ))}
                 </div>
             </div>
@@ -91,7 +119,7 @@ export function WorkspaceList() {
                         Manage your teams and streamline your productivity.
                     </p>
                 </div>
-                <Button onClick={() => setIsModalOpen(true)}>
+                <Button onClick={() => setCreateWorkspaceModalOpen(true)}>
                     <Plus className="mr-2 h-4 w-4" />
                     New Workspace
                 </Button>
@@ -106,9 +134,15 @@ export function WorkspaceList() {
                     <p className="text-muted-foreground text-center max-w-xs mt-2">
                         Get started by creating your first workspace to organize your boards and tasks.
                     </p>
-                    <Button variant="outline" className="mt-6" onClick={() => setIsModalOpen(true)}>
-                        Create Workspace
-                    </Button>
+                    <div className="flex gap-4 mt-6">
+                        <Button variant="outline" onClick={() => setCreateWorkspaceModalOpen(true)}>
+                            Create Workspace
+                        </Button>
+                        <Button variant="secondary" onClick={handleSeedData} isLoading={isSeeding}>
+                            <Database className="mr-2 h-4 w-4" />
+                            Generate Demo Data
+                        </Button>
+                    </div>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -133,7 +167,7 @@ export function WorkspaceList() {
                                     className="flex items-center gap-1 hover:text-primary transition-colors font-medium"
                                     onClick={(e) => {
                                         e.preventDefault()
-                                        alert('Team management coming soon!')
+                                        setCreateWorkspaceModalOpen(true) // Just focusing on workspace creation for now
                                     }}
                                 >
                                     <Users size={14} />
@@ -143,7 +177,6 @@ export function WorkspaceList() {
                                     className="flex items-center gap-1 hover:text-primary transition-colors font-medium"
                                     onClick={(e) => {
                                         e.preventDefault()
-                                        alert('Workspace settings coming soon!')
                                     }}
                                 >
                                     <Settings size={14} />
@@ -154,11 +187,6 @@ export function WorkspaceList() {
                     ))}
                 </div>
             )}
-
-            <CreateWorkspaceModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-            />
         </div>
     )
 }
