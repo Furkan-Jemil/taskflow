@@ -26,6 +26,7 @@ export function useBoard(id: string) {
         queryKey: BOARD_KEYS.detail(id),
         queryFn: () => boardService.getById(id),
         enabled: !!id,
+        throwOnError: true,
     })
 }
 
