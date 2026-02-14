@@ -6,6 +6,7 @@ import { useLists, useCreateList, useUpdateList } from '@/features/lists/hooks/u
 import { ListContainer } from '@/features/lists/components/ListContainer'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
+import { Skeleton } from '@/components/ui/Skeleton'
 import { CardDetailModal, useUpdateCard } from '@/features/cards'
 import { Card } from '@/types/entities'
 import { Plus, X } from 'lucide-react'
@@ -97,10 +98,10 @@ export function BoardCanvas() {
         return (
             <div className="flex flex-col h-screen bg-[#0f172a]">
                 <div className="h-16 border-b border-white/5 bg-slate-900/40 flex items-center px-6 gap-4">
-                    <div className="h-6 w-32 bg-white/5 rounded animate-pulse" />
+                    <Skeleton className="h-6 w-32 bg-white/5" />
                 </div>
                 <div className="flex-1 p-6 flex gap-6 overflow-hidden">
-                    {[1, 2, 3].map(i => <div key={i} className="w-[300px] h-full bg-white/5 rounded-2xl animate-pulse" />)}
+                    {[1, 2, 3].map(i => <Skeleton key={i} className="w-[300px] h-full bg-white/5 rounded-2xl" />)}
                 </div>
             </div>
         )
@@ -136,7 +137,7 @@ export function BoardCanvas() {
                 <div className="flex-1 overflow-x-auto p-6 flex items-start gap-6 custom-scrollbar-h">
                     {isListsLoading ? (
                         <div className="flex gap-6 h-full">
-                            {[1, 2, 3].map(i => <div key={i} className="w-[300px] h-full bg-muted/20 rounded-xl border border-dashed" />)}
+                            {[1, 2, 3].map(i => <Skeleton key={i} className="w-[300px] h-full bg-muted/20 border-dashed" />)}
                         </div>
                     ) : (
                         <>
