@@ -16,16 +16,17 @@ export const useAuthStore = create<AuthStore>()(
         (set) => ({
             // Initial State
             user: null,
-            session: null,
+            token: null,
             isAuthenticated: false,
             isLoading: false,
             error: null,
 
             // Actions
             setAuth: (data) => {
+                localStorage.setItem('auth_token', data.token)
                 set({
                     user: data.user,
-                    session: data.session,
+                    token: data.token,
                     isAuthenticated: true,
                     error: null,
                 })
@@ -34,9 +35,10 @@ export const useAuthStore = create<AuthStore>()(
             setUser: (user) => set({ user }),
 
             logout: () => {
+                localStorage.removeItem('auth_token')
                 set({
                     user: null,
-                    session: null,
+                    token: null,
                     isAuthenticated: false,
                     error: null,
                 })
@@ -50,7 +52,7 @@ export const useAuthStore = create<AuthStore>()(
             storage: createJSONStorage(() => localStorage),
             partialize: (state) => ({
                 user: state.user,
-                session: state.session,
+                token: state.token,
                 isAuthenticated: state.isAuthenticated,
             }),
         }
