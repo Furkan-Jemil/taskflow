@@ -8,7 +8,7 @@ export function useAuth() {
     const navigate = useNavigate()
     const {
         user,
-        session,
+        token,
         isAuthenticated,
         isLoading,
         error,
@@ -27,7 +27,7 @@ export function useAuth() {
                 setAuth(data)
                 navigate('/workspaces')
             } catch (err: any) {
-                setError(err.apiMessage || err.message || 'Failed to login')
+                setError(err.message || 'Failed to login')
                 throw err
             } finally {
                 setLoading(false)
@@ -45,7 +45,7 @@ export function useAuth() {
                 setAuth(data)
                 navigate('/workspaces')
             } catch (err: any) {
-                setError(err.apiMessage || err.message || 'Failed to register')
+                setError(err.message || 'Failed to register')
                 throw err
             } finally {
                 setLoading(false)
@@ -68,20 +68,20 @@ export function useAuth() {
         setError(null)
         try {
             const updatedUser = await authService.updateProfile(data)
-            if (session) {
-                setAuth({ user: updatedUser, session })
-            }
+            // We need a way to update only the user in the store without resetting everything
+            // Assuming setAuth can handle partial or just use it with existing token
+            setAuth({ user: updatedUser, token: token || '' })
         } catch (err: any) {
-            setError(err.apiMessage || err.message || 'Failed to update profile')
+            setError(err.message || 'Failed to update profile')
             throw err
         } finally {
             setLoading(false)
         }
-    }, [session, setAuth, setError, setLoading])
+    }, [setAuth, setError, setLoading, token])
 
     return {
         user,
-        session,
+        token,
         isAuthenticated,
         isLoading,
         error,
