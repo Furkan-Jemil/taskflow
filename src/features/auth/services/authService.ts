@@ -7,16 +7,16 @@ export const authService = {
      * Login user
      */
     async login(credentials: LoginCredentials): Promise<AuthResponse> {
-        const response = await apiClient.post<ApiResponse<AuthResponse>>('/auth/login', credentials)
-        return response.data.data
+        const response = await apiClient.post<AuthResponse>('/auth/sign-in/email', credentials)
+        return response.data
     },
 
     /**
      * Register new user
      */
     async register(credentials: RegisterCredentials): Promise<AuthResponse> {
-        const response = await apiClient.post<ApiResponse<AuthResponse>>('/auth/register', credentials)
-        return response.data.data
+        const response = await apiClient.post<AuthResponse>('/auth/sign-up/email', credentials)
+        return response.data
     },
 
     /**
