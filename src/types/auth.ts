@@ -2,12 +2,17 @@ import { User } from './entities'
 
 export interface AuthResponse {
     user: User
-    token: string
+    session: {
+        id: string
+        userId: string
+        expiresAt: string
+        token?: string
+    }
 }
 
 export interface LoginCredentials {
     email: string
-    password?: string // password required for real login, but making it optional for mock
+    password?: string
 }
 
 export interface RegisterCredentials extends LoginCredentials {
@@ -16,7 +21,7 @@ export interface RegisterCredentials extends LoginCredentials {
 
 export interface AuthState {
     user: User | null
-    token: string | null
+    session: AuthResponse['session'] | null
     isAuthenticated: boolean
     isLoading: boolean
     error: string | null
