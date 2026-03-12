@@ -33,11 +33,11 @@ export class ErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <div className="flex flex-col items-center justify-center min-h-[400px] p-8 text-center bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-800">
-          <div className="p-4 rounded-full bg-red-100 text-red-600 dark:bg-red-900/20 dark:text-red-400 mb-4 animate-in zoom-in duration-300">
+        <div className="flex flex-col items-center justify-center min-h-[400px] p-8 text-center bg-muted/20 rounded-2xl border border-border">
+          <div className="p-4 rounded-full bg-destructive/10 text-destructive mb-4 animate-in zoom-in duration-300">
             <AlertTriangle size={32} />
           </div>
-          <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">
+          <h2 className="text-xl font-bold text-foreground mb-2">
             Something went wrong
           </h2>
           <p className="text-muted-foreground max-w-sm mb-6">

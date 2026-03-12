@@ -30,12 +30,12 @@ function AppRoutes() {
         <Routes>
             {/* Public Routes */}
             <Route path="/login" element={
-                <div className="flex items-center justify-center min-h-screen bg-slate-50 dark:bg-slate-950 p-4">
+                <div className="flex items-center justify-center min-h-screen bg-background p-4">
                     <LoginForm />
                 </div>
             } />
             <Route path="/register" element={
-                <div className="flex items-center justify-center min-h-screen bg-slate-50 dark:bg-slate-950 p-4">
+                <div className="flex items-center justify-center min-h-screen bg-background p-4">
                     <RegisterForm />
                 </div>
             } />
