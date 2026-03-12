@@ -25,7 +25,7 @@ export const BoardHeader = memo(function BoardHeader({
     onOpenSettings
 }: BoardHeaderProps) {
     return (
-        <div className="h-16 border-b border-slate-800 bg-slate-900/40 backdrop-blur-xl flex items-center justify-between px-6 shrink-0 z-10">
+        <div className="h-16 border-b border-border bg-card/40 backdrop-blur-xl flex items-center justify-between px-6 shrink-0 z-10">
             <div className="flex items-center gap-4">
                 <Link
                     to={`/workspaces/${board.workspace_id}`}

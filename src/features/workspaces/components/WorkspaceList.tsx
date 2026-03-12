@@ -157,12 +157,12 @@ export function WorkspaceList() {
                                     <LayoutGrid size={24} />
                                 </div>
                                 <div className="flex -space-x-2">
-                                    <div className="w-8 h-8 rounded-full border-2 border-background bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-700">JD</div>
-                                    <div className="w-8 h-8 rounded-full border-2 border-background bg-slate-100 flex items-center justify-center text-[10px] text-slate-600 border-dashed font-medium">+3</div>
+                                    <div className="w-8 h-8 rounded-full border-2 border-background bg-muted flex items-center justify-center text-[10px] font-bold text-muted-foreground">JD</div>
+                                    <div className="w-8 h-8 rounded-full border-2 border-background bg-muted/50 flex items-center justify-center text-[10px] text-muted-foreground/80 border-dashed font-medium">+3</div>
                                 </div>
                             </div>
-                            <h3 className="text-lg font-bold text-slate-900 group-hover:text-primary transition-colors">{ws.name}</h3>
-                            <div className="flex items-center gap-4 mt-6 pt-4 border-t text-sm text-slate-600">
+                            <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">{ws.name}</h3>
+                            <div className="flex items-center gap-4 mt-6 pt-4 border-t border-border text-sm text-muted-foreground">
                                 <button
                                     className="flex items-center gap-1 hover:text-primary transition-colors font-medium"
                                     onClick={(e) => {

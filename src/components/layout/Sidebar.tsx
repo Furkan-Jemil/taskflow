@@ -20,7 +20,7 @@ export function Sidebar() {
     const favorites = useFavoritesStore((state) => state.favorites)
 
     return (
-        <aside className="hidden md:flex flex-col w-64 border-r border-slate-800 bg-slate-900/60 backdrop-blur-xl h-[calc(100vh-3.5rem)] sticky top-14 z-20">
+        <aside className="hidden md:flex flex-col w-64 border-r border-border bg-card/60 backdrop-blur-xl h-[calc(100vh-3.5rem)] sticky top-14 z-20">
             <div className="flex-1 py-6 px-4 space-y-8 overflow-y-auto custom-scrollbar">
                 {/* Main Navigation */}
                 <div className="space-y-1">

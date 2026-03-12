@@ -96,12 +96,12 @@ export function BoardCanvas() {
 
     if (isBoardLoading) {
         return (
-            <div className="flex flex-col h-screen bg-[#0f172a]">
-                <div className="h-16 border-b border-white/5 bg-slate-900/40 flex items-center px-6 gap-4">
-                    <Skeleton className="h-6 w-32 bg-white/5" />
+            <div className="flex flex-col h-screen bg-background">
+                <div className="h-16 border-b border-border bg-card/40 flex items-center px-6 gap-4">
+                    <Skeleton className="h-6 w-32 bg-muted/20" />
                 </div>
                 <div className="flex-1 p-6 flex gap-6 overflow-hidden">
-                    {[1, 2, 3].map(i => <Skeleton key={i} className="w-[300px] h-full bg-white/5 rounded-2xl" />)}
+                    {[1, 2, 3].map(i => <Skeleton key={i} className="w-[300px] h-full bg-muted/20 rounded-2xl" />)}
                 </div>
             </div>
         )
@@ -117,7 +117,7 @@ export function BoardCanvas() {
             onDragOver={onDragOver}
             onDragEnd={onDragEnd}
         >
-            <div className="flex flex-col h-screen bg-[#0f172a] text-slate-50 overflow-hidden relative">
+            <div className="flex flex-col h-screen bg-background text-foreground overflow-hidden relative">
                 {/* Background Blobs */}
                 <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 rounded-full blur-[120px] pointer-events-none" />
                 <div className="absolute bottom-[-10%] right-[-10%] w-[30%] h-[30%] bg-purple-500/10 rounded-full blur-[100px] pointer-events-none" />
@@ -155,7 +155,7 @@ export function BoardCanvas() {
                             {/* Add List Button */}
                             <div className="w-[300px] min-w-[300px] shrink-0 pb-10">
                                 {isAddingList ? (
-                                    <div className="bg-slate-200/50 dark:bg-slate-900/50 p-4 rounded-xl border animate-in fade-in zoom-in-95 duration-200">
+                                    <div className="bg-muted/50 p-4 rounded-xl border border-border animate-in fade-in zoom-in-95 duration-200">
                                         <Input
                                             autoFocus
                                             placeholder="Enter list title..."
@@ -165,7 +165,7 @@ export function BoardCanvas() {
                                                 if (e.key === 'Enter') handleAddList()
                                                 if (e.key === 'Escape') setIsAddingList(false)
                                             }}
-                                            className="mb-3 bg-card border-none"
+                                            className="mb-3 bg-muted/50 border-none"
                                         />
                                         <div className="flex items-center gap-2">
                                             <Button size="sm" onClick={handleAddList} isLoading={isCreatingList}>
@@ -179,7 +179,7 @@ export function BoardCanvas() {
                                 ) : (
                                     <button
                                         onClick={() => setIsAddingList(true)}
-                                        className="flex items-center justify-center w-full p-4 bg-slate-200/30 dark:bg-slate-900/30 border border-dashed rounded-xl text-muted-foreground hover:text-primary hover:border-primary/50 hover:bg-slate-200/50 transition-all font-medium group h-14"
+                                        className="flex items-center justify-center w-full p-4 bg-muted/30 border border-border border-dashed rounded-xl text-muted-foreground hover:text-primary hover:border-primary/50 hover:bg-muted/50 transition-all font-medium group h-14"
                                     >
                                         <Plus size={20} className="mr-2 group-hover:scale-110 transition-transform" />
                                         Add another list

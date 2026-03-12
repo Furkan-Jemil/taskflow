@@ -8,7 +8,7 @@ export function Header() {
     const { user, logout } = useAuth()
 
     return (
-        <header className="sticky top-0 z-40 w-full border-b border-slate-800 bg-slate-900/40 backdrop-blur-xl shrink-0">
+        <header className="sticky top-0 z-40 w-full border-b border-border bg-card/40 backdrop-blur-xl shrink-0">
             <div className="container flex h-14 items-center justify-between gap-4 px-6 max-w-none">
                 <div className="flex items-center gap-4 flex-1">
                     <Link to="/workspaces" className="flex items-center space-x-2">
@@ -46,7 +46,7 @@ export function Header() {
                             <span className="text-xs text-muted-foreground">{user?.email}</span>
                         </div>
 
-                        <div className="h-9 w-9 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400">
+                        <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center text-muted-foreground">
                             <User size={20} />
                         </div>
 

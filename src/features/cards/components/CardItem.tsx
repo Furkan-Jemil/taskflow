@@ -55,7 +55,7 @@ export const CardItem = memo(function CardItem({ card, onClick }: CardItemProps)
             {...attributes}
             {...listeners}
             onClick={() => onClick(card)}
-            className="group p-4 bg-slate-800/40 backdrop-blur-sm border border-white/5 rounded-xl shadow-lg hover:shadow-2xl hover:border-primary/40 hover:-translate-y-0.5 transition-all duration-300 cursor-grab active:cursor-grabbing select-none animate-in fade-in slide-in-from-bottom-2"
+            className="group p-4 bg-card/40 backdrop-blur-sm border border-border rounded-xl shadow-lg hover:shadow-2xl hover:border-primary/40 hover:-translate-y-0.5 transition-all duration-300 cursor-grab active:cursor-grabbing select-none animate-in fade-in slide-in-from-bottom-2"
         >
             {/* Priority Badge */}
             <div className="flex items-center justify-between mb-3">
@@ -68,7 +68,7 @@ export const CardItem = memo(function CardItem({ card, onClick }: CardItemProps)
             </div>
 
             {/* Title */}
-            <h4 className="text-[15px] font-semibold leading-tight text-slate-100 group-hover:text-primary transition-colors mb-3">
+            <h4 className="text-[15px] font-semibold leading-tight text-foreground group-hover:text-primary transition-colors mb-3">
                 {card.title}
             </h4>
 
