@@ -24,7 +24,7 @@ interface CardDetailModalProps {
 
 export function CardDetailModal({ card, isOpen, onClose }: CardDetailModalProps) {
     const listId = card?.list_id || ''
-    const { mutate: updateCard, isPending } = useUpdateCard(listId)
+    const { mutate: updateCard, isPending } = useUpdateCard()
     const { mutate: deleteCard } = useDeleteCard(listId)
 
     const {
