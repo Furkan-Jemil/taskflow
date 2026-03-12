@@ -27,6 +27,38 @@ export const authService = {
     },
 
     /**
+     * Login with Google
+     */
+    async loginWithGoogle(): Promise<AuthResponse> {
+        // Simulate network delay
+        await new Promise((resolve) => setTimeout(resolve, 500))
+
+        const users = mockStorage.getUsers()
+        // In a real app, this would redirect to Google OAuth.
+        // Here, we simulate choosing a Google account by looking for a specific mock user,
+        // or just returning the first user, or creating a new Google user.
+        let user = users.find((u) => u.email === 'google@example.com')
+        
+        if (!user) {
+            user = {
+                id: crypto.randomUUID(),
+                email: 'google@example.com',
+                name: 'Google User',
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+            }
+            mockStorage.addUser(user)
+        }
+
+        const token = 'mock_google_token_' + btoa(user.email)
+
+        return {
+            user,
+            token,
+        }
+    },
+
+    /**
      * Register new user
      */
     async register(credentials: RegisterCredentials): Promise<AuthResponse> {

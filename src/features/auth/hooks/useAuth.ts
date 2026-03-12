@@ -36,6 +36,24 @@ export function useAuth() {
         [navigate, setAuth, setError, setLoading]
     )
 
+    const loginWithGoogle = useCallback(
+        async () => {
+            setLoading(true)
+            setError(null)
+            try {
+                const data = await authService.loginWithGoogle()
+                setAuth(data)
+                navigate('/workspaces')
+            } catch (err: any) {
+                setError(err.message || 'Failed to login with Google')
+                throw err
+            } finally {
+                setLoading(false)
+            }
+        },
+        [navigate, setAuth, setError, setLoading]
+    )
+
     const register = useCallback(
         async (credentials: RegisterCredentials) => {
             setLoading(true)
@@ -86,6 +104,7 @@ export function useAuth() {
         isLoading,
         error,
         login,
+        loginWithGoogle,
         register,
         logout,
         updateProfile,
