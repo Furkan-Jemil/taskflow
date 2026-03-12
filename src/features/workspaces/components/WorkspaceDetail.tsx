@@ -97,7 +97,7 @@ export function WorkspaceDetail() {
                         <Button
                             variant="outline"
                             onClick={membersModal.open}
-                            className="bg-white/10 backdrop-blur-md border-white/20 hover:bg-white/20 transition-all text-foreground"
+                            className="bg-primary/5 backdrop-blur-md border-primary/10 hover:bg-primary/10 transition-all text-foreground"
                         >
                             <Users size={18} className="mr-2" />
                             Members
@@ -105,7 +105,7 @@ export function WorkspaceDetail() {
                         <Button
                             variant="outline"
                             onClick={settingsModal.open}
-                            className="bg-white/10 backdrop-blur-md border-white/20 hover:bg-white/20 transition-all text-foreground"
+                            className="bg-primary/5 backdrop-blur-md border-primary/10 hover:bg-primary/10 transition-all text-foreground"
                         >
                             <Settings size={18} className="mr-2" />
                             Settings

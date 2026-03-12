@@ -61,7 +61,7 @@ export default function Settings() {
                             variant="ghost"
                             onClick={() => setActiveTab(tab.id)}
                             className={`w-full justify-start gap-3 transition-all ${activeTab === tab.id
-                                ? 'bg-white text-[#1F2937] font-bold shadow-sm border border-slate-200'
+                                ? 'bg-primary/20 text-primary font-bold shadow-sm border border-primary/20'
                                 : 'text-muted-foreground hover:bg-muted'
                                 }`}
                         >
@@ -91,7 +91,7 @@ export default function Settings() {
                                             {...register('name')}
                                             error={errors.name?.message}
                                             placeholder="Demo User"
-                                            className="placeholder:text-slate-400"
+                                            className="placeholder:text-muted-foreground/50"
                                         />
                                     </div>
                                     <div className="space-y-2">
@@ -103,7 +103,7 @@ export default function Settings() {
                                             {...register('email')}
                                             error={errors.email?.message}
                                             placeholder="demo@example.com"
-                                            className="placeholder:text-slate-400"
+                                            className="placeholder:text-muted-foreground/50"
                                         />
                                     </div>
                                 </div>
@@ -119,7 +119,7 @@ export default function Settings() {
                     ) : (
                         <div className="p-12 bg-muted/30 border-2 border-dashed rounded-2xl text-center">
                             <h3 className="text-lg font-bold mb-2 capitalize">{activeTab} Settings</h3>
-                            <p className="text-sm text-[#9CA3AF] italic">
+                            <p className="text-sm text-muted-foreground italic">
                                 This section is currently under development.
                             </p>
                         </div>
