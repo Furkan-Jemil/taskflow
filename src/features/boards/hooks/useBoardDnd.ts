@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
 import {
     useSensor,
     useSensors,
@@ -32,7 +32,11 @@ export function useBoardDnd({
     const [lists, setLists] = useState<List[]>([])
     const [activeList, setActiveList] = useState<List | null>(null)
     const [activeCard, setActiveCard] = useState<Card | null>(null)
-
+    
+    // Track the last container we moved a card into during a drag operation
+    // to avoid redundant updates and infinite loops
+    const lastOverContainer = useRef<string | null>(null)
+    
     // Sync with server data
     useEffect(() => {
         if (serverLists) {
@@ -40,11 +44,12 @@ export function useBoardDnd({
         }
     }, [serverLists])
 
-    // Sensors - Memoized to prevent infinite re-renders during drag
+
+    // Sensors - properly configured for stability
     const sensors = useSensors(
         useSensor(PointerSensor, {
             activationConstraint: {
-                distance: 8,
+                distance: 8, // Require dragging a few pixels before activating
             },
         }),
         useSensor(KeyboardSensor, {
@@ -54,16 +59,19 @@ export function useBoardDnd({
 
     // Helpers
     const findContainer = useCallback((id: string) => {
+        // 1. Check if ID is a list ID
         if (lists.some((l) => l.id === id)) return id
 
+        // 2. Search card in query cache - optimized
         const allCardQueries = queryClient.getQueriesData<Card[]>({ queryKey: ['cards'] })
         for (const [queryKey, cards] of allCardQueries) {
-            if (cards && cards.some((c) => c.id === id)) {
+            if (cards && Array.isArray(cards) && cards.some((c) => c.id === id)) {
                 return (queryKey[1] as string)
             }
         }
         return null
     }, [lists, queryClient])
+
 
     // Handlers
     const onDragStart = useCallback((event: DragStartEvent) => {
@@ -92,13 +100,14 @@ export function useBoardDnd({
         const overData = over.data.current
 
         const activeContainer = findContainer(activeId)
-        const overContainer = findContainer(overId)
+        // If we are over a list directly, use its ID. Otherwise find where the card belongs.
+        const overContainer = overData?.type === 'List' ? overId : findContainer(overId)
 
         if (!activeContainer || !overContainer || activeContainer === overContainer) return
 
-        // Prevent redundant updates if we're already in the target container
-        const currentActiveContainer = findContainer(activeId)
-        if (currentActiveContainer === overContainer) return
+        // SAFETY: Prevent rapid-fire cache updates for the same container move
+        if (lastOverContainer.current === overContainer) return
+        lastOverContainer.current = overContainer
 
         // Optimistic update for React Query cache
         queryClient.setQueryData(['cards', activeContainer], (prev: Card[] | undefined) => {
@@ -122,16 +131,21 @@ export function useBoardDnd({
 
             const updatedCard = { ...activeCard, list_id: overContainer }
             const newCards = [...currentCards]
-            newCards.splice(newIndex, 0, updatedCard)
+            // Ensure we don't accidentally add duplicates
+            if (!newCards.some(c => c.id === activeId)) {
+                newCards.splice(newIndex, 0, updatedCard)
+            }
 
             return newCards
         })
     }, [findContainer, queryClient])
 
+
     const onDragEnd = useCallback((event: DragEndEvent) => {
         const { active, over } = event
         setActiveList(null)
         setActiveCard(null)
+        lastOverContainer.current = null // Reset safety guard
 
         if (!over) return
 
@@ -160,7 +174,7 @@ export function useBoardDnd({
         // 2. Card Drop Persistence
         if (activeData?.type === 'Card') {
             const activeContainer = findContainer(activeId)
-            const overContainer = findContainer(overId)
+            const overContainer = (over.data.current?.type === 'List') ? overId : findContainer(overId)
 
             if (!activeContainer || !overContainer) return
 
@@ -177,7 +191,8 @@ export function useBoardDnd({
         }
     }, [lists, findContainer, queryClient, updateList, updateCard])
 
-    return {
+    // Memoize the return value to prevent BoardCanvas from re-rendering everything on every cycle
+    return useMemo(() => ({
         lists,
         activeList,
         activeCard,
@@ -186,5 +201,5 @@ export function useBoardDnd({
         onDragOver,
         onDragEnd,
         closestCorners,
-    }
+    }), [lists, activeList, activeCard, sensors, onDragStart, onDragOver, onDragEnd])
 }
