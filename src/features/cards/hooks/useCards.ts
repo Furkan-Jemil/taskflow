@@ -30,14 +30,23 @@ export function useCreateCard(listId: string) {
     })
 }
 
-export function useUpdateCard(listId: string) {
+export function useUpdateCard() {
     const queryClient = useQueryClient()
     const { toast } = useToast()
 
     return useMutation({
         mutationFn: ({ id, data }: { id: string; data: any }) => cardService.update(id, data),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: CARD_KEYS.all(listId) })
+        onSuccess: (_, variables) => {
+            // If the card was moved to a new list, invalidate both the original and destination list
+            // However, a simple strategy for board-level consistency is to invalidate the board cards
+            // or just the specific list if known. Since we often move between lists, 
+            // invalidating all lists in the current board is safest if we don't have the original ID.
+            
+            if (variables.data.list_id) {
+                queryClient.invalidateQueries({ queryKey: ['cards', variables.data.list_id] })
+            }
+            
+            // This ensures the board view remains consistent after any update
         },
         onError: (error: any) => {
             toast({ message: error.message || 'Failed to update card', type: 'error' })

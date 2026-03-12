@@ -28,7 +28,7 @@ export function BoardCanvas() {
     const { data: serverLists, isLoading: isListsLoading } = useLists(boardId || '')
     const { mutate: createList, isPending: isCreatingList } = useCreateList(boardId || '')
     const { mutate: updateList } = useUpdateList(boardId || '')
-    const { mutate: updateCard } = useUpdateCard('')
+    const { mutate: updateCard } = useUpdateCard()
 
     // Modals
     const settingsModal = useModal()

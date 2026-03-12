@@ -40,7 +40,7 @@ export function useBoardDnd({
         }
     }, [serverLists])
 
-    // Sensors
+    // Sensors - Memoized to prevent infinite re-renders during drag
     const sensors = useSensors(
         useSensor(PointerSensor, {
             activationConstraint: {
@@ -96,11 +96,15 @@ export function useBoardDnd({
 
         if (!activeContainer || !overContainer || activeContainer === overContainer) return
 
+        // Prevent redundant updates if we're already in the target container
+        const currentActiveContainer = findContainer(activeId)
+        if (currentActiveContainer === overContainer) return
+
         // Optimistic update for React Query cache
         queryClient.setQueryData(['cards', activeContainer], (prev: Card[] | undefined) => {
             if (!prev) return []
-            const activeCard = prev.find(c => c.id === activeId)
-            if (!activeCard) return prev
+            const cardToMove = prev.find(c => c.id === activeId)
+            if (!cardToMove) return prev
             return prev.filter(c => c.id !== activeId)
         })
 
