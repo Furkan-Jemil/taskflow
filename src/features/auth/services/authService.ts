@@ -1,6 +1,7 @@
 import { AuthResponse, LoginCredentials, RegisterCredentials } from '@/types/auth'
 import { mockStorage } from '@/lib/mockStorage'
 import { User } from '@/types/entities'
+import { auth } from '@/lib/auth-client'
 
 export const authService = {
     /**
@@ -11,7 +12,7 @@ export const authService = {
         await new Promise((resolve) => setTimeout(resolve, 500))
 
         const users = mockStorage.getUsers()
-        const user = users.find((u) => u.email === credentials.email)
+        const user = users.find((u: User) => u.email === credentials.email)
 
         if (!user) {
             throw new Error('Invalid email or password')
@@ -29,33 +30,11 @@ export const authService = {
     /**
      * Login with Google
      */
-    async loginWithGoogle(): Promise<AuthResponse> {
-        // Simulate network delay
-        await new Promise((resolve) => setTimeout(resolve, 500))
-
-        const users = mockStorage.getUsers()
-        // In a real app, this would redirect to Google OAuth.
-        // Here, we simulate choosing a Google account by looking for a specific mock user,
-        // or just returning the first user, or creating a new Google user.
-        let user = users.find((u) => u.email === 'google@example.com')
-        
-        if (!user) {
-            user = {
-                id: crypto.randomUUID(),
-                email: 'google@example.com',
-                name: 'Google User',
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString(),
-            }
-            mockStorage.addUser(user)
-        }
-
-        const token = 'mock_google_token_' + btoa(user.email)
-
-        return {
-            user,
-            token,
-        }
+    async loginWithGoogle(): Promise<void> {
+        await (auth as any).signIn.social({
+            provider: "google",
+            callbackURL: window.location.origin + "/auth/callback",
+        })
     },
 
     /**
@@ -65,7 +44,7 @@ export const authService = {
         await new Promise((resolve) => setTimeout(resolve, 500))
 
         const users = mockStorage.getUsers()
-        if (users.some((u) => u.email === credentials.email)) {
+        if (users.some((u: User) => u.email === credentials.email)) {
             throw new Error('User already exists')
         }
 
@@ -94,7 +73,7 @@ export const authService = {
 
         const email = atob(token.replace('mock_token_', ''))
         const users = mockStorage.getUsers()
-        const user = users.find((u) => u.email === email)
+        const user = users.find((u: User) => u.email === email)
 
         if (!user) throw new Error('User not found')
         return user
@@ -108,7 +87,7 @@ export const authService = {
         const updatedUser = { ...user, ...data, updated_at: new Date().toISOString() }
 
         const users = mockStorage.getUsers()
-        const index = users.findIndex(u => u.id === user.id)
+        const index = users.findIndex((u: User) => u.id === user.id)
         if (index !== -1) {
             users[index] = updatedUser
             localStorage.setItem('taskflow_users', JSON.stringify(users))
