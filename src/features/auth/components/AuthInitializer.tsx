@@ -6,27 +6,13 @@ import { User } from '@/types/entities'
 export function AuthInitializer({ children }: { children: React.ReactNode }) {
     const { setAuth, logout } = useAuthStore()
     
-    // Safely check for useSession and call it
-    let sessionData: any = { data: null, isPending: true };
-    
-    try {
-        if (auth && typeof auth.useSession === 'function') {
-            sessionData = auth.useSession();
-        } else {
-            console.error('[AuthInitializer] auth.useSession is not a function or auth is missing', { 
-                authExists: !!auth, 
-                useSessionType: auth ? typeof auth.useSession : 'undefined' 
-            });
-        }
-    } catch (err) {
-        console.error('[AuthInitializer] Error calling useSession:', err);
-    }
-
-    const { data: session, isPending } = sessionData;
+    // Call useSession at the top level, un-conditionally.
+    // We cast to any to bypass the 'never' type error which happens 
+    // when BetterAuth types don't align with the Vite bundling environment perfectly.
+    const { data: session, isPending } = (auth as any).useSession();
 
     useEffect(() => {
         if (!isPending) {
-            console.log('[AuthInitializer] Session check complete. Session:', !!session?.user);
             if (session?.user) {
                 const user: User = {
                     id: session.user.id,

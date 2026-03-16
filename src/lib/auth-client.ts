@@ -1,17 +1,12 @@
-import { createAuthClient } from "@better-auth/client"
+import { createAuthClient } from "better-auth/client"
 
-const config = {
+// Simple initialization. 
+// BetterAuth handle baseURL and /api/auth pathing internally if it's relative.
+export const auth = createAuthClient({
     baseURL: import.meta.env.VITE_API_BASE_URL?.startsWith('http') 
         ? import.meta.env.VITE_API_BASE_URL 
         : window.location.origin,
-};
+});
 
-console.log('[AuthClient] Initializing with config:', config);
-
-export const auth = (createAuthClient as any)(config);
-
-if (!auth) {
-    console.error('[AuthClient] Failed to initialize: client is null/undefined');
-} else {
-    console.log('[AuthClient] Initialized successfully. Available methods:', Object.keys(auth));
-}
+// We keep it as a single export to avoid "Vj is not a function" (un-bundling issues)
+// and to ensure consistency in method access.
