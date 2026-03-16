@@ -1,16 +1,17 @@
 import { createAuthClient } from "@better-auth/client"
 
-// The current types seem to think this takes 0 arguments, 
-// so we cast to any to pass the config correctly.
-const client = (createAuthClient as any)({
-    // If VITE_API_BASE_URL is relative (like /api), we use the window origin.
-    // BetterAuth client appends /api/auth to the baseURL by default.
+const config = {
     baseURL: import.meta.env.VITE_API_BASE_URL?.startsWith('http') 
         ? import.meta.env.VITE_API_BASE_URL 
         : window.location.origin,
-});
+};
 
-export const auth = client;
-export const useSession = client.useSession;
-export const signIn = client.signIn;
-export const signUp = client.signUp;
+console.log('[AuthClient] Initializing with config:', config);
+
+export const auth = (createAuthClient as any)(config);
+
+if (!auth) {
+    console.error('[AuthClient] Failed to initialize: client is null/undefined');
+} else {
+    console.log('[AuthClient] Initialized successfully. Available methods:', Object.keys(auth));
+}
