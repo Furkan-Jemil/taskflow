@@ -15,6 +15,7 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>
 
 export function LoginForm() {
+    console.log('Rendering LoginForm with BetterAuth integration')
     const { login, loginWithGoogle, isLoading, error, isAuthenticated } = useAuth()
     const navigate = useNavigate()
 
