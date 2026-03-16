@@ -41,17 +41,14 @@ export function useAuth() {
             setLoading(true)
             setError(null)
             try {
-                const data = await authService.loginWithGoogle()
-                setAuth(data)
-                navigate('/workspaces')
+                await authService.loginWithGoogle()
             } catch (err: any) {
                 setError(err.message || 'Failed to login with Google')
-                throw err
-            } finally {
                 setLoading(false)
+                throw err
             }
         },
-        [navigate, setAuth, setError, setLoading]
+        [setError, setLoading]
     )
 
     const register = useCallback(
