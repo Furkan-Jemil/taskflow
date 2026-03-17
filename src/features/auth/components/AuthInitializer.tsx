@@ -1,15 +1,13 @@
 import { useEffect } from 'react'
 import { useAuthStore } from '../store/authStore'
-import { auth } from '@/lib/auth-client'
+import { useSession } from '@/lib/auth-client'
 import { User } from '@/types/entities'
 
 export function AuthInitializer({ children }: { children: React.ReactNode }) {
     const { setAuth, logout } = useAuthStore()
     
-    // Call useSession at the top level, un-conditionally.
-    // We cast to any to bypass the 'never' type error which happens 
-    // when BetterAuth types don't align with the Vite bundling environment perfectly.
-    const { data: session, isPending } = (auth as any).useSession();
+    // Use the direct export of useSession for production stability.
+    const { data: session, isPending } = useSession();
 
     useEffect(() => {
         if (!isPending) {
