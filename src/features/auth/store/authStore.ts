@@ -28,6 +28,7 @@ export const useAuthStore = create<AuthStore>()(
                     user: data.user,
                     token: data.token,
                     isAuthenticated: true,
+                    isLoading: false,
                     error: null,
                 })
             },
@@ -40,6 +41,7 @@ export const useAuthStore = create<AuthStore>()(
                     user: null,
                     token: null,
                     isAuthenticated: false,
+                    isLoading: false,
                     error: null,
                 })
             },
