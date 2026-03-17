@@ -1,7 +1,7 @@
 import { AuthResponse, LoginCredentials, RegisterCredentials } from '@/types/auth'
 import { mockStorage } from '@/lib/mockStorage'
 import { User } from '@/types/entities'
-import { auth } from '@/lib/auth-client'
+import { signIn } from '@/lib/auth-client'
 
 export const authService = {
     /**
@@ -31,7 +31,7 @@ export const authService = {
      * Login with Google
      */
     async loginWithGoogle(): Promise<void> {
-        await (auth as any).signIn.social({
+        await signIn.social({
             provider: "google",
             callbackURL: window.location.origin + "/auth/callback",
         })
