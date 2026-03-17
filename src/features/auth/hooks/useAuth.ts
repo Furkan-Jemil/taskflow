@@ -44,8 +44,9 @@ export function useAuth() {
                 await authService.loginWithGoogle()
             } catch (err: any) {
                 setError(err.message || 'Failed to login with Google')
-                setLoading(false)
                 throw err
+            } finally {
+                setLoading(false)
             }
         },
         [setError, setLoading]
